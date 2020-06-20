@@ -109,8 +109,21 @@ vector<int> postorderTraversal(TreeNode* root){
     vector<int> res;
 
     stack<TreeNode*> st;
+    st.push(root);
+    while(!st.empty()){
+        TreeNode* node = st.top();
+        if(node == nullptr){ //说明是根节点了
+            st.pop();
+            res.push_back(st.top()->val);
+            st.pop();
+            continue;
+        }
+        st.push(nullptr);
+        if(node->right != nullptr) st.push(node->right);
+        if(node->left != nullptr) st.push(node->left);
+    }
 
-    
+    return res;
 }
 ```
 
