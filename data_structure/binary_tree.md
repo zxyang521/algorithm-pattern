@@ -28,7 +28,7 @@ struct TreeNode{
 #### 前序递归
 
 ```cpp
-//前中后序遍历只在这个函数有区别
+//前中后序遍历只在这个函数有区别, 调整push_back的顺序
 void preOrderRecursion(TreeNode* root, vector<int>& res){
     res.push_back(root->val);
     preOrderRecursion(root->left, res);
@@ -59,7 +59,8 @@ vector<int> preorderTraversal(TreeNode* root){
     st.push(root);
 
     while(!st.empty()){
-        TreeNode* node = st.pop();
+        TreeNode* node = st.top();
+        st.pop();
         res.push_nack(node->val);
         //注意先入右节点进栈
         if(!node->right) st.push(node->right);
@@ -72,58 +73,44 @@ vector<int> preorderTraversal(TreeNode* root){
 
 #### 中序非递归
 
-```go
+```cpp
 // 思路：通过stack 保存已经访问的元素，用于原路返回
-func inorderTraversal(root *TreeNode) []int {
-    result := make([]int, 0)
-    if root == nil {
-        return result
-    }
-    stack := make([]*TreeNode, 0)
-    for len(stack) > 0 || root != nil {
-        for root != nil {
-            stack = append(stack, root)
-            root = root.Left // 一直向左
+vector<int> inorderTraversal(TreeNode* root){
+    if(root == nullptr) return {};
+    vector<int> res;
+
+    stack<TreeNode*> st;
+
+    while(true){
+        if(root != nullptr){
+            st.push(root);
+            root = root->left; //一直向左
         }
-        // 弹出
-        val := stack[len(stack)-1]
-        stack = stack[:len(stack)-1]
-        result = append(result, val.Val)
-        root = val.Right
+        else if(!st.empty()){
+            TreeNode* root = st.top();　//弹出
+            st.pop();
+            res.push_back(root->val);
+            root = root->right;　　//右子树
+        }
+        else break;
     }
-    return result
+
+    return res;
+
 }
 ```
 
 #### 后序非递归
 
-```go
-func postorderTraversal(root *TreeNode) []int {
-	// 通过lastVisit标识右子节点是否已经弹出
-	if root == nil {
-		return nil
-	}
-	result := make([]int, 0)
-	stack := make([]*TreeNode, 0)
-	var lastVisit *TreeNode
-	for root != nil || len(stack) != 0 {
-		for root != nil {
-			stack = append(stack, root)
-			root = root.Left
-		}
-		// 这里先看看，先不弹出
-		node:= stack[len(stack)-1]
-		// 根节点必须在右节点弹出之后，再弹出
-		if node.Right == nil || node.Right == lastVisit {
-			stack = stack[:len(stack)-1] // pop
-			result = append(result, node.Val)
-			// 标记当前这个节点已经弹出过
-			lastVisit = node
-		} else {
-			root = node.Right
-		}
-	}
-	return result
+```cpp
+vector<int> postorderTraversal(TreeNode* root){
+	// 通过栈辅助，同时插入nullptr节点判断右子节点是否弹出
+    if(root == nullptr) return {}
+    vector<int> res;
+
+    stack<TreeNode*> st;
+
+    
 }
 ```
 
