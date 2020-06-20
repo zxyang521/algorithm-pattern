@@ -12,46 +12,61 @@
 
 - 以根访问顺序决定是什么遍历
 - 左子树都是优先右子树
+  
+#### TreeNode 定义
+
+```cpp
+struct TreeNode{
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode* parent;
+    TreeNode(int x): val(x), left(nullptr), right(nullptr), parent(nullptr) {}
+};
+```
 
 #### 前序递归
 
-```go
-func preorderTraversal(root *TreeNode)  {
-    if root==nil{
-        return
-    }
-    // 先访问根再访问左右
-    fmt.Println(root.Val)
-    preorderTraversal(root.Left)
-    preorderTraversal(root.Right)
+```cpp
+//前中后序遍历只在这个函数有区别
+void preOrderRecursion(TreeNode* root, vector<int>& res){
+    res.push_back(root->val);
+    preOrderRecursion(root->left, res);
+    preOrderRecursion(root->right, res);
+}
+
+vector<int> preOrderTraversal(TreeNode* root){
+    if(root == nullptr) return {};
+    
+    vector<int> res;
+
+    preOrderRecursion(root, res);
+
+    return res;
 }
 ```
 
 #### 前序非递归
 
-```go
-// V3：通过非递归遍历
-func preorderTraversal(root *TreeNode) []int {
+```cpp
+// 通过非递归遍历: 用栈进行辅助
+vector<int> preorderTraversal(TreeNode* root){
     // 非递归
-    if root == nil{
-        return nil
-    }
-    result:=make([]int,0)
-    stack:=make([]*TreeNode,0)
+    if(root == nullptr) return {};
+    vector<int> res;
 
-    for root!=nil || len(stack)!=0{
-        for root !=nil{
-            // 前序遍历，所以先保存结果
-            result=append(result,root.Val)
-            stack=append(stack,root)
-            root=root.Left
-        }
-        // pop
-        node:=stack[len(stack)-1]
-        stack=stack[:len(stack)-1]
-        root=node.Right
+    stack<TreeNode*> st;
+    st.push(root);
+
+    while(!st.empty()){
+        TreeNode* node = st.pop();
+        res.push_nack(node->val);
+        //注意先入右节点进栈
+        if(!node->right) st.push(node->right);
+        if(!node->left) st.push(node->left);
     }
-    return result
+
+    return res;
 }
 ```
 
