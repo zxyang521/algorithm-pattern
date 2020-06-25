@@ -21,7 +21,7 @@ struct TreeNode{
     TreeNode* left;
     TreeNode* right;
     TreeNode* parent;
-    TreeNode(int x): val(x), left(nullptr), right(nullptr), parent(nullptr) {};
+    TreeNode(int x): val(x), left(nullptr), right(nullptr), parent(nullptr) {}
 };
 ```
 
@@ -383,21 +383,16 @@ void swap(vector<int>& a, int i, int j){
 
 思路：分治法
 
-```go
-func maxDepth(root *TreeNode) int {
-    // 返回条件处理
-    if root == nil {
-        return 0
-    }
-    // divide：分左右子树分别计算
-    left := maxDepth(root.Left)
-    right := maxDepth(root.Right)
+```cpp
+int maxDepth(TreeNode* root){
+    if (root == nullptr) return 0;
 
-    // conquer：合并左右子树结果
-    if left > right {
-        return left + 1
-    }
-    return right + 1
+    // Divide
+    int leftDepth = maxDepth(root->left);
+    int rightDepth = maxDepth(root->right);
+
+    // Conquer
+    return 1 + max(leftDepth, rightDepth); // 注意加一
 }
 ```
 
@@ -411,29 +406,22 @@ func maxDepth(root *TreeNode) int {
 因为需要返回是否平衡及高度，要么返回两个数据，要么合并两个数据，
 所以用-1 表示不平衡，>0 表示树高度（二义性：一个变量有两种含义）。
 
-```go
-func isBalanced(root *TreeNode) bool {
-    if maxDepth(root) == -1 {
-        return false
-    }
-    return true
+```cpp
+bool isBalanced(TreeNode* root) {
+    if(maxDepth(root) == -1) return false;
+    return true;
 }
-func maxDepth(root *TreeNode) int {
-    // check
-    if root == nil {
-        return 0
-    }
-    left := maxDepth(root.Left)
-    right := maxDepth(root.Right)
 
-    // 为什么返回-1呢？（变量具有二义性）
-    if left == -1 || right == -1 || left-right > 1 || right-left > 1 {
-        return -1
+int maxDepth(TreeNode* root){
+    if(root == nullptr) return 0;
+    int leftDepth = maxDepth(root->left);
+    int rightDepth = maxDepth(root->right);
+    if(leftDepth == -1 || rightDepth == -1 || leftDepth - rightDepth > 1 || rightDepth - leftDepth > 1)
+    {
+        return -1;
     }
-    if left > right {
-        return left + 1
-    }
-    return right + 1
+    return 1 + max(leftDepth, rightDepth);
+
 }
 ```
 
