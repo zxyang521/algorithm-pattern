@@ -87,10 +87,10 @@ vector<int> inorderTraversal(TreeNode* root){
             root = root->left; //一直向左
         }
         else if(!st.empty()){
-            TreeNode* root = st.top();　//弹出
+            root = st.top();　//弹出
             st.pop();
             res.push_back(root->val);
-            root = root->right;　　//右子树
+            root = root->right;　　//转向右子树
         }
         else break;
     }
@@ -437,45 +437,22 @@ int maxDepth(TreeNode* root){
 
 思路：分治法，分为三种情况：左子树最大路径和最大，右子树最大路径和最大，左右子树最大加根节点最大，需要保存两个变量：一个保存子树最大路径和，一个保存左右加根节点和，然后比较这个两个变量选择最大值即可
 
-```go
-type ResultType struct {
-    SinglePath int // 保存单边最大值
-    MaxPath int // 保存最大值（单边或者两个单边+根的值）
+```cpp
+int maxPathSum(TreeNode* root) {
+    int maxSum = INT_MIN;
+    dfs(root, maxSum);
+    return maxSum;
 }
-func maxPathSum(root *TreeNode) int {
-    result := helper(root)
-    return result.MaxPath
-}
-func helper(root *TreeNode) ResultType {
-    // check
-    if root == nil {
-        return ResultType{
-            SinglePath: 0,
-            MaxPath: -(1 << 31),
-        }
-    }
-    // Divide
-    left := helper(root.Left)
-    right := helper(root.Right)
 
-    // Conquer
-    result := ResultType{}
-    // 求单边最大值
-    if left.SinglePath > right.SinglePath {
-        result.SinglePath = max(left.SinglePath + root.Val, 0)
-    } else {
-        result.SinglePath = max(right.SinglePath + root.Val, 0)
-    }
-    // 求两边加根最大值
-    maxPath := max(right.MaxPath, left.MaxPath)
-    result.MaxPath = max(maxPath,left.SinglePath+right.SinglePath+root.Val)
-    return result
-}
-func max(a,b int) int {
-    if a > b {
-        return a
-    }
-    return b
+int dfs(TreeNode* root, int& maxSum){
+    if(root == nullptr) return 0;
+    int leftPathSum = dfs(root->left, maxSum);
+    leftPathSum = max(leftPathSum, 0); //注意跟0比较，小于0，那这条边就不添加了
+    int rightPathSum = dfs(root->right, maxSum);
+    rightPathSum = max(rightPathSum, 0);
+    
+    maxSum = max(root->val + leftPathSum + rightPathSum, maxSum);
+    return max(leftPathSum, rightPathSum) + root->val;
 }
 ```
 
@@ -487,33 +464,19 @@ func max(a,b int) int {
 
 思路：分治法，有左子树的公共祖先或者有右子树的公共祖先，就返回子树的祖先，否则返回根节点
 
-```go
-func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
-    // check
-    if root == nil {
-        return root
-    }
-    // 相等 直接返回root节点即可
-    if root == p || root == q {
-        return root
-    }
+```cpp
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if(root == nullptr) return nullptr; // check
+    if(root == p || root == q) return root; // 相等，返回root
+
     // Divide
-    left := lowestCommonAncestor(root.Left, p, q)
-    right := lowestCommonAncestor(root.Right, p, q)
+    TreeNode* leftNode = lowestCommonAncestor(root->left, p, q);
+    TreeNode* rightNode = lowestCommonAncestor(root->right, p, q);
 
+    // conquer
+    if(leftNode != nullptr && rightNode != nullptr) return root;
 
-    // Conquer
-    // 左右两边都不为空，则根节点为祖先
-    if left != nil && right != nil {
-        return root
-    }
-    if left != nil {
-        return left
-    }
-    if right != nil {
-        return right
-    }
-    return nil
+    return leftNode==nullptr?rightNode:leftNode; // check
 }
 ```
 
@@ -527,34 +490,27 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 
 思路：用一个队列记录一层的元素，然后扫描这一层元素添加下一层元素到队列（一个数进去出来一次，所以复杂度 O(logN)）
 
-```go
-func levelOrder(root *TreeNode) [][]int {
-	result := make([][]int, 0)
-	if root == nil {
-		return result
-	}
-	queue := make([]*TreeNode, 0)
-	queue = append(queue, root)
-	for len(queue) > 0 {
-		list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-		l := len(queue)
-		for i := 0; i < l; i++ {
-            // 出队列
-			level := queue[0]
-			queue = queue[1:]
-			list = append(list, level.Val)
-			if level.Left != nil {
-				queue = append(queue, level.Left)
-			}
-			if level.Right != nil {
-				queue = append(queue, level.Right)
-			}
-		}
-		result = append(result, list)
-	}
-	return result
+```cpp
+vector<vector<int>> levelOrder(TreeNode* root) {
+    if(root == nullptr) return {};
+    vector<vector<int>> res;
+    queue<TreeNode*> nodes;
+    nodes.push(root);
+
+    while(!nodes.empty()){
+        int levelSize = nodes.size();
+        vector<int> levelVals;
+        for(int i = 0; i < levelSize; i++){
+            TreeNode* node = nodes.front();
+            nodes.pop();
+            levelVals.push_back(node->val);
+            if(node->left != nullptr) nodes.push(node->left);
+            if(node->right != nullptr) nodes.push(node->right);
+        }
+        res.push_back(levelVals);
+    }
+    
+    return res;
 }
 ```
 
@@ -564,47 +520,44 @@ func levelOrder(root *TreeNode) [][]int {
 
 > 给定一个二叉树，返回其节点值自底向上的层次遍历。 （即按从叶子节点所在层到根节点所在的层，逐层从左向右遍历）
 
-思路：在层级遍历的基础上，翻转一下结果即可
+思路：
 
-```go
-func levelOrderBottom(root *TreeNode) [][]int {
-    result := levelOrder(root)
-    // 翻转结果
-    reverse(result)
-    return result
-}
-func reverse(nums [][]int) {
-	for i, j := 0, len(nums)-1; i < j; i, j = i+1, j-1 {
-		nums[i], nums[j] = nums[j], nums[i]
-	}
-}
-func levelOrder(root *TreeNode) [][]int {
-	result := make([][]int, 0)
-	if root == nil {
-		return result
-	}
-	queue := make([]*TreeNode, 0)
-	queue = append(queue, root)
-	for len(queue) > 0 {
-		list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-		l := len(queue)
-		for i := 0; i < l; i++ {
-            // 出队列
-			level := queue[0]
-			queue = queue[1:]
-			list = append(list, level.Val)
-			if level.Left != nil {
-				queue = append(queue, level.Left)
-			}
-			if level.Right != nil {
-				queue = append(queue, level.Right)
-			}
-		}
-		result = append(result, list)
-	}
-	return result
+-- 在层级遍历的基础上，翻转一下结果即可
+
+-- 使用```deque```在前端插入结果，最后再复制回```vector```
+
+```cpp
+vector<vector<int>> levelOrderBottom(TreeNode* root) {
+    if(root == nullptr) return {};
+
+    vector<vector<int>> res;
+    // deque<vector<int>> dq;
+    queue<TreeNode*> nodes;
+    nodes.push(root);
+
+    while(!nodes.empty()){
+        int levelSize = nodes.size();
+        vector<int> levelVals;
+        for(int i = 0; i < levelSize; i++){
+            TreeNode* node = nodes.front();
+            nodes.pop();
+            levelVals.push_back(node->val);
+            if(node->left != nullptr) nodes.push(node->left);
+            if(node->right != nullptr) nodes.push(node->right);
+        }
+        res.push_back(levelVals);
+        // dq.push_front(levelVals);
+    }
+
+    reverse(res.begin(), res.end()); //翻转
+
+    // copy to vector
+    // while(!dq.empty()){
+    //     res.push_back(dq.front());
+    //     dq.pop_front();
+    // }
+
+    return res;
 }
 ```
 
@@ -614,45 +567,33 @@ func levelOrder(root *TreeNode) [][]int {
 
 > 给定一个二叉树，返回其节点值的锯齿形层次遍历。Z 字形遍历
 
-```go
-func zigzagLevelOrder(root *TreeNode) [][]int {
-	result := make([][]int, 0)
-	if root == nil {
-		return result
-	}
-	queue := make([]*TreeNode, 0)
-	queue = append(queue, root)
-	toggle := false
-	for len(queue) > 0 {
-		list := make([]int, 0)
-		// 记录当前层有多少元素（遍历当前层，再添加下一层）
-		l := len(queue)
-		for i := 0; i < l; i++ {
-			// 出队列
-			level := queue[0]
-			queue = queue[1:]
-			list = append(list, level.Val)
-			if level.Left != nil {
-				queue = append(queue, level.Left)
-			}
-			if level.Right != nil {
-				queue = append(queue, level.Right)
-			}
-		}
-		if toggle {
-			reverse(list)
-		}
-		result = append(result, list)
-		toggle = !toggle
-	}
-	return result
-}
-func reverse(nums []int) {
-	for i := 0; i < len(nums)/2; i++ {
-		t := nums[i]
-		nums[i] = nums[len(nums)-1-i]
-		nums[len(nums)-1-i] = t
-	}
+思路：跟上面模板一样，注意reverse就行了
+
+```cpp
+vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+    if(root == nullptr) return {};
+
+    vector<vector<int>> res;
+    queue<TreeNode*> nodes;
+    nodes.push(root);
+
+    bool isReverse = false;
+    while(!nodes.empty()){
+        int levelSize = nodes.size();
+        vector<int> levelVals;
+        for(int i = 0; i < levelSize; i++){
+            TreeNode* node = nodes.front();
+            nodes.pop();
+            levelVals.push_back(node->val);
+            if(node->left != nullptr) nodes.push(node->left);
+            if(node->right != nullptr) nodes.push(node->right);
+        }
+        if(isReverse) reverse(levelVals.begin(), levelVals.end());
+        res.push_back(levelVals);
+        isReverse = !isReverse;
+    }
+
+    return res;
 }
 ```
 
@@ -668,85 +609,57 @@ func reverse(nums []int) {
 
 思路 2：分治法，判断左 MAX < 根 < 右 MIN
 
-```go
+```cpp
 // v1
-func isValidBST(root *TreeNode) bool {
-    result := make([]int, 0)
-    inOrder(root, &result)
-    // check order
-    for i := 0; i < len(result) - 1; i++{
-        if result[i] >= result[i+1] {
-            return false
+bool isValidBST(TreeNode* root) {
+    if(root == nullptr) return true;
+    // 中序遍历，判断是否升序
+    vector<int> res;
+    
+    inOrder(root, res);
+    for(int i = 0; i < res.size() - 1; i++){
+        if(res[i] >= res[i + 1]) return false;
+    }
+    return true;
+}
+
+void inOrder(TreeNode* root, vector<int>& res){
+    if(root == nullptr) return;
+    //// v1: 递归
+    inOrder(root->left, res);
+    res.push_back(root->val);
+    inOrder(root->right, res);
+    //// v2: 非递归
+    /*
+    stack<TreeNode*> st;
+    while(true){
+        if(root != nullptr){
+            st.push(root);
+            root = root->left;
         }
+        else if(!st.empty()){
+            root = st.top();
+            st.pop();
+            res.push_back(root->val);
+            root = root->right;
+        }
+        else break;
     }
-    return true
+    */
 }
-
-func inOrder(root *TreeNode, result *[]int)  {
-    if root == nil{
-        return
-    }
-    inOrder(root.Left, result)
-    *result = append(*result, root.Val)
-    inOrder(root.Right, result)
-}
-
-
 ```
 
-```go
+```cpp
 // v2分治法
-type ResultType struct {
-	IsValid bool
-    // 记录左右两边最大最小值，和根节点进行比较
-	Max     *TreeNode
-	Min     *TreeNode
+bool isValidBST(TreeNode* root) {
+    return validate(root, LONG_MIN, LONG_MAX);
 }
 
-func isValidBST2(root *TreeNode) bool {
-	result := helper(root)
-	return result.IsValid
-}
-func helper(root *TreeNode) ResultType {
-	result := ResultType{}
-	// check
-	if root == nil {
-		result.IsValid = true
-		return result
-	}
+bool validate(TreeNode* root, long mi, long ma){
+    if(root == nullptr) return true;
+    if(root->val <= mi || root->val >= ma) return false;
 
-	left := helper(root.Left)
-	right := helper(root.Right)
-
-	if !left.IsValid || !right.IsValid {
-		result.IsValid = false
-		return result
-	}
-	if left.Max != nil && left.Max.Val >= root.Val {
-		result.IsValid = false
-		return result
-	}
-	if right.Min != nil && right.Min.Val <= root.Val {
-		result.IsValid = false
-		return result
-	}
-
-	result.IsValid = true
-    // 如果左边还有更小的3，就用更小的节点，不用4
-    //  5
-    // / \
-    // 1   4
-    //      / \
-    //     3   6
-	result.Min = root
-	if left.Min != nil {
-		result.Min = left.Min
-	}
-	result.Max = root
-	if right.Max != nil {
-		result.Max = right.Max
-	}
-	return result
+    return validate(root->left, mi, root->val) && validate(root->right, root->val, ma);
 }
 ```
 
@@ -758,19 +671,20 @@ func helper(root *TreeNode) ResultType {
 
 思路：找到最后一个叶子节点满足插入条件即可
 
-```go
+```cpp
 // DFS查找插入位置
-func insertIntoBST(root *TreeNode, val int) *TreeNode {
-    if root == nil {
-        root = &TreeNode{Val: val}
-        return root
+TreeNode* insertIntoBST(TreeNode* root, int val) {
+    if(root == nullptr) {
+        root = new TreeNode(val);
+        return root;
     }
-    if root.Val > val {
-        root.Left = insertIntoBST(root.Left, val)
-    } else {
-        root.Right = insertIntoBST(root.Right, val)
+    if(root->val > val){
+        root->left = insertIntoBST(root->left, val);
     }
-    return root
+    else 
+        root->right = insertIntoBST(root->right, val);
+
+    return root;
 }
 ```
 
