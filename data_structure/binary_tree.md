@@ -21,7 +21,7 @@ struct TreeNode{
     TreeNode* left;
     TreeNode* right;
     TreeNode* parent;
-    TreeNode(int x): val(x), left(nullptr), right(nullptr), parent(nullptr) {}
+    TreeNode(int x): val(x), left(nullptr), right(nullptr), parent(nullptr) {};
 };
 ```
 
@@ -105,7 +105,7 @@ vector<int> inorderTraversal(TreeNode* root){
 ```cpp
 vector<int> postorderTraversal(TreeNode* root){
 	// 通过栈辅助，同时插入nullptr节点判断右子节点是否弹出
-    if(root == nullptr) return {}
+    if(root == nullptr) return {};
     vector<int> res;
 
     stack<TreeNode*> st;
@@ -133,91 +133,75 @@ vector<int> postorderTraversal(TreeNode* root){
 
 #### DFS 深度搜索-从上到下
 
-```go
-type TreeNode struct {
-    Val   int
-    Left  *TreeNode
-    Right *TreeNode
-}
-
-func preorderTraversal(root *TreeNode) []int {
-    result := make([]int, 0)
-    dfs(root, &result)
-    return result
+```cpp
+vector<int> preorderTraversal(TreeNode* root){
+    vector<int> res;
+    dfs(root, res);
+    return res;
 }
 
 // V1：深度遍历，结果指针作为参数传入到函数内部
-func dfs(root *TreeNode, result *[]int) {
-    if root == nil {
-        return
-    }
-    *result = append(*result, root.Val)
-    dfs(root.Left, result)
-    dfs(root.Right, result)
+void dfs(TreeNode* root, vector<int>& res) {
+    if(root == nullptr) return;
+    res.push_back(root->val);
+    dfs(root->left, res);
+    dfs(root->right, res);
 }
 ```
 
 #### DFS 深度搜索-从下向上（分治法）
 
-```go
+```cpp
 // V2：通过分治法遍历
-func preorderTraversal(root *TreeNode) []int {
-    result := divideAndConquer(root)
-    return result
+vector<int> preorderTraversal(TreeNode* root){
+    vector<int> res = divideAndConquer(root);
+    return res;
 }
-func divideAndConquer(root *TreeNode) []int {
-    result := make([]int, 0)
+
+vector<int> divideAndConquer(TreeNode* root){
     // 返回条件(null & leaf)
-    if root == nil {
-        return result
-    }
+    if(root == nullptr) return {};
     // 分治(Divide)
-    left := divideAndConquer(root.Left)
-    right := divideAndConquer(root.Right)
+    vector<int> res_left = divideAndConquer(root->left);
+    vector<int> res_right = divideAndConquer(root->right);
     // 合并结果(Conquer)
-    result = append(result, root.Val)
-    result = append(result, left...)
-    result = append(result, right...)
-    return result
+    vector<int> res;
+    res.push_back(root->val);
+    res.insert(res.end(), res_left.begin(), res_right.end());
+
+    return res;
 }
 ```
 
 注意点：
 
-> DFS 深度搜索（从上到下） 和分治法区别：前者一般将最终结果通过指针参数传入，后者一般递归返回结果最后合并
+> DFS 深度搜索（从上到下） 和分治法（从下到上）区别：前者一般将最终结果通过指针参数传入，后者一般递归返回结果最后合并，会return一个值
 
 #### BFS 层次遍历
 
-```go
-func levelOrder(root *TreeNode) [][]int {
+```cpp
+vector<vector<int>> levelOrder(TreeNode* root){
+    vector<vector<int>> res;
+    if(root == nullptr) return res;
+    queue<TreeNode*> nodes;
+    nodes.push(root);
     // 通过上一层的长度确定下一层的元素
-    result := make([][]int, 0)
-    if root == nil {
-        return result
-    }
-    queue := make([]*TreeNode, 0)
-    queue = append(queue, root)
-    for len(queue) > 0 {
-        list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-        l := len(queue)
-        for i := 0; i < l; i++ {
-            // 出队列
-            level := queue[0]
-            queue = queue[1:]
-            list = append(list, level.Val)
-            if level.Left != nil {
-                queue = append(queue, level.Left)
-            }
-            if level.Right != nil {
-                queue = append(queue, level.Right)
-            }
+    while(!nodes.empty()){
+        int levelSize = nodes.size(); //记录当前层有多少元素，遍历当前层，并添加下一层
+        vector<int> levelVals;
+        for(int i = 0; i < levelSize; i++){
+            TreeNode* tmpNode = nodes.front();
+            nodes.pop();
+            levelVals.push_back(tmpNode->val);
+            if(tmpNode->left != nullptr) nodes.push(tmpNode->left);
+            if(tmpNode->right != nullptr) nodes.push(tmpNode->right);
         }
-        result = append(result, list)
+        res.push_back(levelVals);
     }
-    return result
+
+    return res;
 }
+
 ```
 
 ### 分治法应用
@@ -236,86 +220,99 @@ func levelOrder(root *TreeNode) [][]int {
 - 分段处理
 - 合并结果
 
-```go
-func traversal(root *TreeNode) ResultType  {
-    // nil or leaf
-    if root == nil {
-        // do something and return
+```cpp
+template<typename T> 
+T traversal(TreeNode* root){
+    // null
+    if(root == nullptr) {
+        //do something and return
     }
 
     // Divide
-    ResultType left = traversal(root.Left)
-    ResultType right = traversal(root.Right)
+    T left = traversal(root->left);
+    T right = traversal(root->right);
 
     // Conquer
-    ResultType result = Merge from left and right
+    T res = Merge from left and right
 
-    return result
+    return res;
 }
 ```
 
 #### 典型示例
 
-```go
+```cpp
 // V2：通过分治法遍历二叉树
-func preorderTraversal(root *TreeNode) []int {
-    result := divideAndConquer(root)
-    return result
+vector<int> preorderTraversal(TreeNode* root){
+    vector<int> res = divideAndConquer(root);
+    return res;
 }
-func divideAndConquer(root *TreeNode) []int {
-    result := make([]int, 0)
-    // 返回条件(null & leaf)
-    if root == nil {
-        return result
-    }
-    // 分治(Divide)
-    left := divideAndConquer(root.Left)
-    right := divideAndConquer(root.Right)
-    // 合并结果(Conquer)
-    result = append(result, root.Val)
-    result = append(result, left...)
-    result = append(result, right...)
-    return result
+
+vector<int> divideAndConquer(TreeNode* root){
+    vector<int> res;
+    if(root == nullptr) return res; //处理异常
+    
+    // Divide
+    vector<int> left = divideAndConquer(root->left);
+    vector<int> right = divideAndConquer(root->right);
+    
+    // Conquer
+    res.push_back(root->val);
+    res.insert(res.end(), left.begin(), left.end());
+    res.insert(res.end(), right.begin(), right.end());
+
+    return res;
 }
 ```
 
 #### 归并排序  
 
-```go
-func MergeSort(nums []int) []int {
-    return mergeSort(nums)
+```cpp
+
+void mergeSort(vector<int>& a){
+    int n = a.size();
+    vector<int> aux;
+    merge_sort(a, aux, 0, n - 1);
 }
-func mergeSort(nums []int) []int {
-    if len(nums) <= 1 {
-        return nums
-    }
-    // 分治法：divide 分为两段
-    mid := len(nums) / 2
-    left := mergeSort(nums[:mid])
-    right := mergeSort(nums[mid:])
-    // 合并两段数据
-    result := merge(left, right)
-    return result
+
+void merge_sort(vector<int>& a, vector<int>& aux, int low, int high){
+    if(low >= high) return;
+    
+    // 分治: middle分成两半
+    int middle = low + (high - low) / 2;
+    merge_sort(a, aux, low, middle);
+    merge_sort(a, aux, middle + 1, high);
+
+    // 合并
+    merge(a, aux, low, middle, high);
 }
-func merge(left, right []int) (result []int) {
-    // 两边数组合并游标
-    l := 0
-    r := 0
-    // 注意不能越界
-    for l < len(left) && r < len(right) {
-        // 谁小合并谁
-        if left[l] > right[r] {
-            result = append(result, right[r])
-            r++
-        } else {
-            result = append(result, left[l])
-            l++
-        }
+
+void merge(vector<int>& a, vector<int>& aux, int low, int middle, int high){
+    assert isSorted(a, low, middle);
+    assert isSorted(a, middle + 1, high);
+
+    for(int k = low; k < high; k++)
+        aux[k] = a[k];
+    
+    int i = low, j = middle + 1;
+    for(int k = low; k < high; k++){
+        if(i > middle) a[k] = aux[j++];
+        else if(j > high) a[k] = aux[i++];
+        else if(aux[i] > aux[j]) a[k] = aux[j++];
+        else a[k] = aux[i++];
     }
-    // 剩余部分合并
-    result = append(result, left[l:]...)
-    result = append(result, right[r:]...)
-    return
+
+    assert isSorted(a, low, high);
+
+}
+
+//判断是否是排序好的数组
+bool isSorted(vector<int>& a, int i, int j){
+    for(int k = i; k < j; k++){
+        if(a[k] > a[k + 1]) return false;
+    }
+    
+    return true;
 }
 ```
 
@@ -325,40 +322,49 @@ func merge(left, right []int) (result []int) {
 
 #### 快速排序  
 
-```go
-func QuickSort(nums []int) []int {
-	// 思路：把一个数组分为左右两段，左段小于右段，类似分治法没有合并过程
-	quickSort(nums, 0, len(nums)-1)
-	return nums
+```cpp
+void quickSort(vector<int>& a){
+    //思路：找到数组中某个index，将数组分成两段，左段小于右段，类似分治法，但没有合并
+    random_shuffle(a); //重要！保证快排复杂度下限
+    int n = a.size();
+    quick_sort(a, 0, n - 1);
+}
 
+void quick_sort(vector<int>& a, int low, int high){
+    if(low >= high) return; //异常
+    
+    int pivot = partion(a, low, high); //找到某个数
+    // 分治
+    quick_sort(a, low, pivot - 1);
+    quick_sort(a, pivot + 1, high);
 }
-// 原地交换，所以传入交换索引
-func quickSort(nums []int, start, end int) {
-	if start < end {
-        // 分治法：divide
-		pivot := partition(nums, start, end)
-		quickSort(nums, 0, pivot-1)
-		quickSort(nums, pivot+1, end)
-	}
+
+int partion(vector<int>& a, int low, int high){
+    if(low == high) return low;
+    
+    srand(time(0));
+    int pivotIdx = low + rand() % (high - low);
+    swap(a, pivotIdx, high);
+
+    int pivot = a[high];
+    for(int i = low; i < high; i++){
+        // all elements less than 'pivot' will be before the index 'low'.
+        if(a[i] < pivot){
+            swap(a, i, low);
+            low++;
+        }
+    }
+
+    // put the pivot into the right place.
+    swap(a, low, high);
+
+    return low;
 }
-// 分区
-func partition(nums []int, start, end int) int {
-	p := nums[end]
-	i := start
-	for j := start; j < end; j++ {
-		if nums[j] < p {
-			swap(nums, i, j)
-			i++
-		}
-	}
-    // 把中间的值换为用于比较的基准值
-	swap(nums, i, end)
-	return i
-}
-func swap(nums []int, i, j int) {
-	t := nums[i]
-	nums[i] = nums[j]
-	nums[j] = t
+
+void swap(vector<int>& a, int i, int j){
+    int tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
 }
 ```
 
