@@ -705,3 +705,7 @@ TreeNode* insertIntoBST(TreeNode* root, int val) {
 - [ ] [binary-tree-zigzag-level-order-traversal](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/)
 - [ ] [validate-binary-search-tree](https://leetcode-cn.com/problems/validate-binary-search-tree/)
 - [ ] [insert-into-a-binary-search-tree](https://leetcode-cn.com/problems/insert-into-a-binary-search-tree/)
+- [ ] [path-sum](https://leetcode-cn.com/problems/path-sum/)
+- [ ] [path-sum-ii](https://leetcode-cn.com/problems/path-sum-ii/)
+- [ ] [sum-root-to-leaf-numbers](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/)
+- [ ] [path-sum-iii](https://leetcode-cn.com/problems/path-sum-iii/)
