@@ -10,6 +10,7 @@
 - 插入一个节点到排序链表
 - 从一个链表中移除一个节点
 - 翻转链表
+- k个一组翻转链表
 - 合并两个链表
 - 找到链表的中间节点
 
@@ -19,17 +20,22 @@
 
 > 给定一个排序链表，删除所有重复的元素，使得每个元素只出现一次。
 
-```go
-func deleteDuplicates(head *ListNode) *ListNode {
-    current := head
-    for current != nil {
-        // 全部删除完再移动到下一个元素
-        for current.Next != nil && current.Val == current.Next.Val {
-            current.Next = current.Next.Next
+```cpp
+ListNode* deleteDuplicates(ListNode* head) {
+    if(head == nullptr) return head;
+
+    ListNode* cur = head;
+    ListNode* prev = head;
+
+    while(cur->next != nullptr){
+        cur = cur->next;
+        if(cur->val != prev->val) { //删除所有相同元素，再移动到下一个元素
+            prev->next = cur;
+            prev = cur;
         }
-        current = current.Next
     }
-    return head
+    prev->next = nullptr;
+    return head;
 }
 ```
 
