@@ -456,50 +456,36 @@ ListNode *detectCycle(ListNode *head) {
 
 > 请判断一个链表是否为回文链表。
 
-```go
-func isPalindrome(head *ListNode) bool {
-    // 1 2 nil
-    // 1 2 1 nil
-    // 1 2 2 1 nil
-    if head==nil{
-        return true
-    }
-    slow:=head
-    // fast如果初始化为head.Next则中点在slow.Next
-    // fast初始化为head,则中点在slow
-    fast:=head.Next
-    for fast!=nil&&fast.Next!=nil{
-        fast=fast.Next.Next
-        slow=slow.Next
+```cpp
+bool isPalindrome(ListNode* head) {
+    if(head == nullptr || head->next == nullptr) return true;
+    ListNode* slow = head;
+    ListNode* fast = head;
+    while(fast != nullptr && fast->next != nullptr){
+        slow = slow->next;
+        fast = fast->next->next;
     }
 
-    tail:=reverse(slow.Next)
-    // 断开两个链表(需要用到中点前一个节点)
-    slow.Next=nil
-    for head!=nil&&tail!=nil{
-        if head.Val!=tail.Val{
-            return false
-        }
-        head=head.Next
-        tail=tail.Next
+    ListNode* rev = reverse(slow);
+    ListNode* prev = head;
+    while(rev != nullptr && prev != nullptr){
+        if(rev->val != prev->val) return false;
+        rev = rev->next;
+        prev = prev->next;
     }
-    return true
-
+    return true;
 }
 
-func reverse(head *ListNode)*ListNode{
-    // 1->2->3
-    if head==nil{
-        return head
+ListNode* reverse(ListNode* curNode){
+    ListNode* prev = nullptr;
+    ListNode* node = nullptr;
+    while(curNode != nullptr){
+        node = curNode->next;
+        curNode->next = prev;
+        prev = curNode;
+        curNode = node;
     }
-    var prev *ListNode
-    for head!=nil{
-        t:=head.Next
-        head.Next=prev
-        prev=head
-        head=t
-    }
-    return prev
+    return prev;
 }
 ```
 
