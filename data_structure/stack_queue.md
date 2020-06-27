@@ -6,9 +6,9 @@
 
 ![image.png](https://img.fuiboom.com/img/stack.png)
 
-根据这个特点可以临时保存一些数据，之后用到依次再弹出来，常用于 DFS 深度搜索
+根据这个特点可以临时保存一些数据，之后用到依次再弹出来，常用于 ```DFS``` 深度搜索
 
-队列一般常用于 BFS 广度搜索，类似一层一层的搜索
+队列一般常用于 ```BFS``` 广度搜索，类似一层一层的搜索
 
 ## Stack 栈
 
@@ -16,60 +16,40 @@
 
 > 设计一个支持 push，pop，top 操作，并能在常数时间内检索到最小元素的栈。
 
-思路：用两个栈实现，一个最小栈始终保证最小值在顶部
+思路：
+- 用两个栈实现，一个最小栈始终保证最小值在顶部
+- 用pair数据结构保存值和当前栈中最小值
 
-```go
-type MinStack struct {
-    min []int
-    stack []int
-}
+```cpp
+class MinStack {
 
+public:
+    stack<pair<int, int>> st;  //value, minVal
 
-/** initialize your data structure here. */
-func Constructor() MinStack {
-    return MinStack{
-        min: make([]int, 0),
-        stack: make([]int, 0),
+    /** initialize your data structure here. */
+    MinStack() {
+    }
+
+    void push(int x) {
+        if(st.empty()){
+            st.push(make_pair(x, x));
+            return;
+        }
+        st.push(make_pair(x, min(x, st.top().second)));
+    }
+
+    void pop() {
+        st.pop();
+    }
+
+    int top() {
+        return st.top().first;
+    }
+
+    int getMin() {
+        return st.top().second;
     }
 }
-
-
-func (this *MinStack) Push(x int)  {
-    min := this.GetMin()
-    if x < min {
-        this.min = append(this.min, x)
-    } else {
-        this.min = append(this.min, min)
-    }
-    this.stack = append(this.stack, x)
-}
-
-
-func (this *MinStack) Pop()  {
-    if len(this.stack) == 0 {
-        return
-    }
-    this.stack = this.stack[:len(this.stack)-1]
-    this.min = this.min[:len(this.min)-1]
-}
-
-
-func (this *MinStack) Top() int {
-    if len(this.stack) == 0 {
-        return 0
-    }
-    return this.stack[len(this.stack)-1]
-}
-
-
-func (this *MinStack) GetMin() int {
-    if len(this.min) == 0 {
-        return 1 << 31
-    }
-    min := this.min[len(this.min)-1]
-    return min
-}
-
 
 /**
  * Your MinStack object will be instantiated and called as such:
@@ -88,41 +68,23 @@ func (this *MinStack) GetMin() int {
 
 思路：通过栈保存原来的元素，遇到表达式弹出运算，再推入结果，重复这个过程
 
-```go
-func evalRPN(tokens []string) int {
-    if len(tokens)==0{
-        return 0
-    }
-    stack:=make([]int,0)
-    for i:=0;i<len(tokens);i++{
-        switch tokens[i]{
-        case "+","-","*","/":
-            if len(stack)<2{
-                return -1
-            }
-            // 注意：a为除数，b为被除数
-            b:=stack[len(stack)-1]
-            a:=stack[len(stack)-2]
-            stack=stack[:len(stack)-2]
-            var result int
-            switch tokens[i]{
-            case "+":
-                result=a+b
-            case "-":
-                result=a-b
-            case "*":
-                result=a*b
-            case "/":
-                result=a/b
-            }
-            stack=append(stack,result)
-        default:
-            // 转为数字
-            val,_:=strconv.Atoi(tokens[i])
-            stack=append(stack,val)
+```cpp
+int evalRPN(vector<string>& tokens) {
+    stack<int> st;
+    for(int i = 0; i < tokens.size(); i++){
+        string k = tokens[i];
+        if(k == "+" || k == "-" || k == "*" || k == "/"){
+            int a = st.top(); st.pop();
+            int b = st.top(); st.pop();
+            if(tokens[i] == "+") st.push(b + a);
+            if(tokens[i] == "-") st.push(b - a);
+            if(tokens[i] == "*") st.push(b * a);
+            if(tokens[i] == "/") st.push(b / a); //注意后pop出来的是除数
         }
+        else st.push(stoi(k));
     }
-    return stack[0]
+    return st.top();
+
 }
 ```
 
@@ -202,26 +164,29 @@ boolean DFS(int root, int target) {
 
 > 给定一个二叉树，返回它的*中序*遍历。
 
-```go
+```cpp
 // 思路：通过stack 保存已经访问的元素，用于原路返回
-func inorderTraversal(root *TreeNode) []int {
-    result := make([]int, 0)
-    if root == nil {
-        return result
-    }
-    stack := make([]*TreeNode, 0)
-    for len(stack) > 0 || root != nil {
-        for root != nil {
-            stack = append(stack, root)
-            root = root.Left // 一直向左
+vector<int> inorderTraversal(TreeNode* root) {
+    if(root == nullptr) return {};
+    stack<TreeNode*> st;
+    vector<int> res;
+
+    while(true){
+        if(root){
+            st.push(root);
+            root = root->left; //一直向左
         }
-        // 弹出
-        val := stack[len(stack)-1]
-        stack = stack[:len(stack)-1]
-        result = append(result, val.Val)
-        root = val.Right
+        else if(!st.empty()){
+            root = st.top();
+            st.pop(); //弹出
+            res.push_back(root->val);
+            root = root->right; //转到右子树
+        }
+        else break;
     }
-    return result
+
+    return res;
+
 }
 ```
 
@@ -424,35 +389,27 @@ func (this *MyQueue) Empty() bool {
 
 二叉树层次遍历
 
-```go
-func levelOrder(root *TreeNode) [][]int {
+```cpp
+vector<vector<int>> levelOrder(TreeNode* root){
+    vector<vector<int>> res;
+    if(root == nullptr) return res;
+    queue<TreeNode*> nodes;
+    nodes.push(root);
     // 通过上一层的长度确定下一层的元素
-    result := make([][]int, 0)
-    if root == nil {
-        return result
-    }
-    queue := make([]*TreeNode, 0)
-    queue = append(queue, root)
-    for len(queue) > 0 {
-        list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-        l := len(queue)
-        for i := 0; i < l; i++ {
-            // 出队列
-            level := queue[0]
-            queue = queue[1:]
-            list = append(list, level.Val)
-            if level.Left != nil {
-                queue = append(queue, level.Left)
-            }
-            if level.Right != nil {
-                queue = append(queue, level.Right)
-            }
+    while(!nodes.empty()){
+        int levelSize = nodes.size(); //记录当前层有多少元素，遍历当前层，并添加下一层
+        vector<int> levelVals;
+        for(int i = 0; i < levelSize; i++){
+            TreeNode* tmpNode = nodes.front();
+            nodes.pop();
+            levelVals.push_back(tmpNode->val);
+            if(tmpNode->left != nullptr) nodes.push(tmpNode->left);
+            if(tmpNode->right != nullptr) nodes.push(tmpNode->right);
         }
-        result = append(result, list)
+        res.push_back(levelVals);
     }
-    return result
+
+    return res;
 }
 ```
 
@@ -513,7 +470,7 @@ func updateMatrix(matrix [][]int) [][]int {
 ## 总结
 
 - 熟悉栈的使用场景
-  - 后出先出，保存临时值
+  - 后进先出，保存临时值
   - 利用栈 DFS 深度搜索
 - 熟悉队列的使用场景
   - 利用队列 BFS 广度搜索
