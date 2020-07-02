@@ -41,32 +41,24 @@ ListNode* deleteDuplicates(ListNode* head) {
 
 ### [remove-duplicates-from-sorted-list-ii](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/)
 
-> 给定一个排序链表，删除所有含有重复数字的节点，只保留原始链表中   没有重复出现的数字。
+> 给定一个排序链表，删除所有含有重复数字的节点，只保留原始链表中，没有重复出现的数字。
 
 思路：链表头结点可能被删除，所以用 dummy node 辅助删除
 
-```go
-func deleteDuplicates(head *ListNode) *ListNode {
-    if head == nil {
-        return head
-    }
-    dummy := &ListNode{Val: 0}
-    dummy.Next = head
-    head = dummy
+```cpp
+ListNode* deleteDuplicates(ListNode* head) {
+    ListNode* dummy = new ListNode(-1);
+    dummy->next = head;
+    ListNode* cur = dummy;
 
-    var rmVal int
-    for head.Next != nil && head.Next.Next != nil {
-        if head.Next.Val == head.Next.Next.Val {
-            // 记录已经删除的值，用于后续节点判断
-            rmVal = head.Next.Val
-            for head.Next != nil && head.Next.Val == rmVal  {
-                head.Next = head.Next.Next
-            }
-        } else {
-            head = head.Next
-        }
+    while(cur->next){
+        ListNode* node = cur->next;
+        while(node != nullptr && node->val == cur->next->val) node = node->next;
+        if(cur->next->next != node) cur->next = node;
+        else cur = cur->next;
     }
-    return dummy.Next
+
+    return dummy->next;
 }
 ```
 
@@ -183,34 +175,29 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
 
 思路：将大于 x 的节点，放到另外一个链表，最后连接这两个链表
 
-```go
-func partition(head *ListNode, x int) *ListNode {
-    // 思路：将大于x的节点，放到另外一个链表，最后连接这两个链表
-    // check
-    if head == nil {
-        return head
-    }
-    headDummy := &ListNode{Val: 0}
-    tailDummy := &ListNode{Val: 0}
-    tail := tailDummy
-    headDummy.Next = head
-    head = headDummy
-    for head.Next != nil {
-        if head.Next.Val < x {
-            head = head.Next
-        } else {
-            // 移除<x节点
-            t := head.Next
-            head.Next = head.Next.Next
-            // 放到另外一个链表
-            tail.Next = t
-            tail = tail.Next
+```cpp
+ListNode* partition(ListNode* head, int x) {
+    if(head == nullptr || head->next == nullptr) return head;
+    ListNode* dummy = new ListNode(-1);
+    dummy->next = head;
+    ListNode* cur = dummy;
+    
+    ListNode* tail = new ListNode(-1);
+    ListNode* node = tail;
+
+    while(cur->next != nullptr){
+        if(cur->next->val < x)  cur = cur->next;
+        else{
+            ListNode* tmp = cur->next;
+            cur->next = cur->next->next;
+            node->next = tmp;
+            node = node->next;
         }
     }
-    // 拼接两个链表
-    tail.Next = nil
-    head.Next = tailDummy.Next
-    return headDummy.Next
+    node->next = nullptr;  //注意链表尾部
+
+    cur->next = tail->next; // 链接起来
+    return dummy->next;
 }
 ```
 
