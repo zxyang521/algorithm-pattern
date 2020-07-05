@@ -531,6 +531,32 @@ Node* copyRandomList(Node* head) {
 }
 ```
 
+### [cong-wei-dao-tou-da-yin-lian-biao-lcof](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/)
+
+> 从尾到头打印链表
+
+思路：
+- reverse链表，再次序打印链表的值
+- 不能改动链表的话，借用栈的辅助
+
+```cpp
+vector<int> reversePrint(ListNode* head) {
+    if(head == nullptr) return {};
+    stack<int> st;
+    while(head != nullptr){
+        st.push(head->val);
+        head = head->next;
+    }
+
+    vector<int> res;
+    while(!st.empty()){
+        res.push_back(st.top());
+        st.pop();
+    }
+    return res;
+}
+```
+
 ## 总结
 
 链表必须要掌握的一些点，通过下面练习题，基本大部分的链表类的题目都是手到擒来~
@@ -558,3 +584,4 @@ Node* copyRandomList(Node* head) {
 - [ ] [linked-list-cycle-ii](https://leetcode-cn.com/problems/https://leetcode-cn.com/problems/linked-list-cycle-ii/)
 - [ ] [palindrome-linked-list](https://leetcode-cn.com/problems/palindrome-linked-list/)
 - [ ] [copy-list-with-random-pointer](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)
+- [ ] [cong-wei-dao-tou-da-yin-lian-biao-lcof](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/)
