@@ -211,63 +211,66 @@ ListNode* partition(ListNode* head, int x) {
 
 思路：归并排序，找中点和合并操作
 
-```go
-func sortList(head *ListNode) *ListNode {
-    // 思路：归并排序，找中点和合并操作
-    return mergeSort(head)
+```cpp
+ListNode* sortList(ListNode* head) {
+    // 归并排序，找中点，合并操作
+    return mergeSort(head);
 }
-func findMiddle(head *ListNode) *ListNode {
-    // 1->2->3->4->5
-    slow := head
-    fast := head.Next
-    // 快指针先为nil
-    for fast !=nil && fast.Next != nil {
-        fast = fast.Next.Next
-        slow = slow.Next
+
+ListNode* findMiddle(ListNode* head){
+    ListNode* slow = head;
+    ListNode* fast = head->next;  // 为了得到even nodes下的第一个节点
+
+    while(fast != nullptr && fast->next != nullptr){
+        slow = slow->next;
+        fast = fast->next->next;
     }
-    return slow
+
+    return slow;
 }
-func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
-    dummy := &ListNode{Val: 0}
-    head := dummy
-    for l1 != nil && l2 != nil {
-        if l1.Val < l2.Val {
-            head.Next = l1
-            l1 = l1.Next
-        } else {
-            head.Next = l2
-            l2 = l2.Next
+
+ListNode* mergeSort(ListNode* head){
+    if(head == nullptr || head->next == nullptr) return head;
+
+    ListNode* middle = findMiddle(head);
+
+    ListNode* halfHead = middle->next;
+    middle->next = nullptr;
+    
+    ListNode* newHead = mergeSort(head);
+    ListNode* newHalf = mergeSort(halfHead);
+    ListNode* node = merge(newHead, newHalf);
+    return node;
+}
+
+ListNode* merge(ListNode* head1, ListNode* head2){
+    ListNode* dummy = new ListNode(-1);
+    ListNode* head = dummy;
+
+    while(head1 != nullptr && head2 != nullptr){
+        if(head1->val < head2->val){
+            head->next = head1;
+            head1 = head1->next;
         }
-        head = head.Next
+        else{
+            head->next = head2;
+            head2 = head2->next;
+        }
+        head = head->next;
     }
-    // 连接l1 未处理完节点
-    for l1 != nil {
-        head.Next = l1
-        head = head.Next
-        l1 = l1.Next
+
+    while(head1 != nullptr){
+        head->next = head1;
+        head1 = head1->next;
+        head = head->next;
     }
-    // 连接l2 未处理完节点
-    for l2 != nil {
-        head.Next = l2
-        head = head.Next
-        l2 = l2.Next
+    while(head2 != nullptr){
+        head->next = head2;
+        head2 = head2->next;
+        head = head->next;
     }
-    return dummy.Next
-}
-func mergeSort(head *ListNode) *ListNode {
-    // 如果只有一个节点 直接就返回这个节点
-    if head == nil || head.Next == nil{
-        return head
-    }
-    // find middle
-    middle := findMiddle(head)
-    // 断开中间节点
-    tail := middle.Next
-    middle.Next = nil
-    left := mergeSort(head)
-    right := mergeSort(tail)
-    result := mergeTwoLists(left, right)
-    return result
+
+    return dummy->next;
 }
 ```
 
@@ -284,70 +287,80 @@ func mergeSort(head *ListNode) *ListNode {
 
 思路：找到中点断开，翻转后面部分，然后合并前后两个链表
 
-```go
-func reorderList(head *ListNode)  {
-    // 思路：找到中点断开，翻转后面部分，然后合并前后两个链表
-    if head == nil {
-        return
-    }
-    mid := findMiddle(head)
-    tail := reverseList(mid.Next)
-    mid.Next = nil
-    head = mergeTwoLists(head, tail)
+```cpp
+void reorderList(ListNode* head) {
+    if(head == nullptr || head->next == nullptr) return;
+    // 找到中间节点
+    ListNode* middle = findMiddle(head);
+    //翻转第二个链表
+    ListNode* secondHalf = reverse(middle->next);
+    middle->next = nullptr;
+    //merge
+    merge(head, secondHalf);
 }
-func findMiddle(head *ListNode) *ListNode {
-    fast := head.Next
-    slow := head
-    for fast != nil && fast.Next != nil {
-        fast = fast.Next.Next
-        slow = slow.Next
+
+//找到中间节点
+ListNode* findMiddle(ListNode* head){
+    ListNode* slow = head;
+    ListNode* fast = head->next;
+
+    while(fast != nullptr && fast->next != nullptr){
+        slow = slow->next;
+        fast = fast->next->next;
     }
-    return slow
+
+    return slow;
 }
-func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
-    dummy := &ListNode{Val: 0}
-    head := dummy
-    toggle := true
-    for l1 != nil && l2 != nil {
-        // 节点切换
-        if toggle {
-            head.Next = l1
-            l1 = l1.Next
-        } else {
-            head.Next = l2
-            l2 = l2.Next
+
+//翻转链表
+ListNode* reverse(ListNode* head){
+    ListNode* cur = head;
+    ListNode* prev = nullptr;;
+
+    ListNode* node = nullptr;
+    while(cur != nullptr){
+        node = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = node;
+    }
+    return prev;
+}
+
+//merge
+void merge(ListNode* head, ListNode* head2){
+    ListNode* head1 = head;
+
+    ListNode* dummy = new ListNode(-1);
+    ListNode* node = dummy;
+
+    bool insertFirst = true;
+    while(head1 != nullptr && head2 != nullptr){
+        if(insertFirst){
+            node->next = head1;
+            head1 = head1->next;
         }
-        toggle = !toggle
-        head = head.Next
+        else{
+            node->next = head2;
+            head2 = head2->next;
+        }
+        node = node->next;
+        insertFirst = !insertFirst;
     }
-    // 连接l1 未处理完节点
-    for l1 != nil {
-        head.Next = l1
-        head = head.Next
-        l1 = l1.Next
+
+    while(head1 != nullptr){
+        node->next = head1;
+        head1 = head1->next;
+        node = node->next;
     }
-    // 连接l2 未处理完节点
-    for l2 != nil {
-        head.Next = l2
-        head = head.Next
-        l2 = l2.Next
+
+    while(head2 != nullptr){
+        node->next = head2;
+        head2 = head2->next;
+        node = node->next;
     }
-    return dummy.Next
-}
-func reverseList(head *ListNode) *ListNode {
-    var prev *ListNode
-    for head != nil {
-        // 保存当前head.Next节点，防止重新赋值后被覆盖
-        // 一轮之后状态：nil<-1 2->3->4
-        //              prev   head
-        temp := head.Next
-        head.Next = prev
-        // pre 移动
-        prev = head
-        // head 移动
-        head = temp
-    }
-    return prev
+
+    head = dummy->next;
 }
 ```
 
@@ -483,39 +496,38 @@ ListNode* reverse(ListNode* curNode){
 
 思路：1、hash 表存储指针，2、复制节点跟在原节点后面
 
-```go
-func copyRandomList(head *Node) *Node {
-	if head == nil {
-		return head
-	}
-	// 复制节点，紧挨到到后面
-	// 1->2->3  ==>  1->1'->2->2'->3->3'
-	cur := head
-	for cur != nil {
-		clone := &Node{Val: cur.Val, Next: cur.Next}
-		temp := cur.Next
-		cur.Next = clone
-		cur = temp
-	}
-	// 处理random指针
-	cur = head
-	for cur != nil {
-		if cur.Random != nil {
-			cur.Next.Random = cur.Random.Next
-		}
-		cur = cur.Next.Next
-	}
-	// 分离两个链表
-	cur = head
-	cloneHead := cur.Next
-	for cur != nil && cur.Next != nil {
-		temp := cur.Next
-		cur.Next = cur.Next.Next
-		cur = temp
-	}
-	// 原始链表头：head 1->2->3
-	// 克隆的链表头：cloneHead 1'->2'->3'
-	return cloneHead
+```cpp
+Node* copyRandomList(Node* head) {
+    if(head == nullptr) return head;
+    //复制节点，放在原节点的后面
+    Node* cur = head;
+    Node* tmp = nullptr;
+    while(cur != nullptr){
+        Node* cloneNode = new Node(cur->val, cur->next, nullptr);
+        tmp = cur->next;
+        cur->next = cloneNode;
+        cur = tmp;
+    }
+
+    //处理random指针
+    cur = head;
+    while(cur != nullptr){
+        if(cur->random != nullptr){
+            cur->next->random = cur->random->next;
+        }
+        cur = cur->next->next;
+    }
+    
+    //分离两个链表
+    cur = head;
+    Node* clone = head->next;
+    while(cur != nullptr && cur->next != nullptr){
+        tmp = cur->next;
+        cur->next = cur->next->next;
+        cur = tmp;
+    }
+
+    return clone;
 }
 ```
 
