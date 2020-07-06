@@ -136,7 +136,7 @@ ListNode* reverseBetween(ListNode* head, int m, int n) {
 > 将两个升序链表合并为一个新的升序链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
 
 思路：
-- 通过 dummy node 链表，连接各个元素
+- 通过 ```dummy node``` 链表，连接各个元素
 - 利用优先队列```priority_queue```来merge
 
 ```cpp
