@@ -2,13 +2,13 @@
 
 ## 简介
 
-栈的特点是后入先出
+栈的特点是**后入先出**
 
 ![image.png](https://img.fuiboom.com/img/stack.png)
 
 根据这个特点可以临时保存一些数据，之后用到依次再弹出来，常用于 ```DFS``` 深度搜索
 
-队列一般常用于 ```BFS``` 广度搜索，类似一层一层的搜索
+队列的特点是**先入先出**， 一般常用于 ```BFS``` 广度搜索，类似一层一层的搜索
 
 ## Stack 栈
 
@@ -97,50 +97,54 @@ int evalRPN(vector<string>& tokens) {
 
 思路：通过栈辅助进行操作
 
-```go
-func decodeString(s string) string {
-	if len(s) == 0 {
-		return ""
-	}
-	stack := make([]byte, 0)
-	for i := 0; i < len(s); i++ {
-		switch s[i] {
-		case ']':
-			temp := make([]byte, 0)
-			for len(stack) != 0 && stack[len(stack)-1] != '[' {
-				v := stack[len(stack)-1]
-				stack = stack[:len(stack)-1]
-				temp = append(temp, v)
-			}
-			// pop '['
-			stack = stack[:len(stack)-1]
-			// pop num
-			idx := 1
-			for len(stack) >= idx && stack[len(stack)-idx] >= '0' && stack[len(stack)-idx] <= '9' {
-				idx++
-			}
-            // 注意索引边界
-			num := stack[len(stack)-idx+1:]
-			stack = stack[:len(stack)-idx+1]
-			count, _ := strconv.Atoi(string(num))
-			for j := 0; j < count; j++ {
-                // 把字符正向放回到栈里面
-				for j := len(temp) - 1; j >= 0; j-- {
-					stack = append(stack, temp[j])
-				}
-			}
-		default:
-			stack = append(stack, s[i])
+```cpp
+string decodeString(string s) {
+    if(s.length() == 0) return "";
+    int n = s.length();
 
-		}
-	}
-	return string(stack)
+    stack<char> st;
+    for(int i = 0; i < n; i++){
+        if(s[i] == ']'){
+            string tmp = "";
+            while(!st.empty() && st.top() != '['){
+                tmp += st.top();
+                st.pop();
+            }
+            // pop out [
+            if(!st.empty()) st.pop();
+            string num = "";
+            //get the number
+            while(!st.empty() && st.top() >= '0' && st.top() <= '9'){
+                num += st.top();
+                st.pop();
+            }
+
+            int count = 0;
+            for(int t = num.length() - 1; t >= 0; t--)
+                count = count * 10 + num[t] - '0';
+
+            //repeat number times
+            for(int j = 0; j < count; j++){
+                for(int k = tmp.length() - 1; k >= 0; k--) st.push(tmp[k]);  //倒过来输入到```stack```里面去
+            }
+        }
+        else st.push(s[i]);
+    }
+
+    vector<char> res;
+    while(!st.empty()){
+        res.push_back(st.top());
+        st.pop();
+    }
+    reverse(res.begin(), res.end());
+    string ss(res.begin(), res.end());
+    return ss;
 }
 ```
 
-利用栈进行 DFS 递归搜索模板
+**利用栈进行 ```DFS``` 递归搜索模板**
 
-```go
+```cpp
 boolean DFS(int root, int target) {
     Set<Node> visited;
     Stack<Node> s;
@@ -194,31 +198,26 @@ vector<int> inorderTraversal(TreeNode* root) {
 
 > 给你无向连通图中一个节点的引用，请你返回该图的深拷贝（克隆）。
 
-```go
-func cloneGraph(node *Node) *Node {
-    visited:=make(map[*Node]*Node)
-    return clone(node,visited)
+```cpp
+Node* cloneGraph(Node* node) {
+    
+    unordered_map<Node*, Node*> visited;
+    return clone(node, visited);
 }
-// 1 2
-// 4 3
-// 递归克隆，传入已经访问过的元素作为过滤条件
-func clone(node *Node,visited map[*Node]*Node)*Node{
-    if node==nil{
-        return nil
+
+Node* clone(Node* node, unordered_map<Node*, Node*>& visited){
+    if(node == nullptr) return nullptr;
+
+    if(visited.find(node) != visited.end()) return visited[node];
+
+    vector<Node*> listNode(node->neighbors.size(), nullptr);
+    Node* cloneNode = new Node(node->val, listNode);
+    visited[node] = cloneNode;
+    for(int i = 0; i < node->neighbors.size(); i++){
+        cloneNode->neighbors[i] = clone(node->neighbors[i], visited);
     }
-    // 已经访问过直接返回
-    if v,ok:=visited[node];ok{
-        return v
-    }
-    newNode:=&Node{
-        Val:node.Val,
-        Neighbors:make([]*Node,len(node.Neighbors)),
-    }
-    visited[node]=newNode
-    for i:=0;i<len(node.Neighbors);i++{
-        newNode.Neighbors[i]=clone(node.Neighbors[i],visited)
-    }
-    return newNode
+
+    return cloneNode;
 }
 ```
 
