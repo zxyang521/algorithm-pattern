@@ -227,29 +227,43 @@ Node* clone(Node* node, unordered_map<Node*, Node*>& visited){
 
 思路：通过深度搜索遍历可能性（注意标记已访问元素）
 
-```go
+```cpp
+int numIslands(vector<vector<char>>& grid) {
+    if(grid.empty()) return 0;
+    int count = 0;
+    int rows = grid.size();
+    int cols = grid[0].size();
 
-func numIslands(grid [][]byte) int {
-    var count int
-    for i:=0;i<len(grid);i++{
-        for j:=0;j<len(grid[i]);j++{
-            if grid[i][j]=='1' && dfs(grid,i,j)>=1{
-                count++
-            }
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            if(grid[r][c] == '1') count++;
+            dfs(grid, r, c);
         }
     }
-    return count
+
+    return count;
 }
-func dfs(grid [][]byte,i,j int)int{
-    if i<0||i>=len(grid)||j<0||j>=len(grid[0]){
-        return 0
+
+void dfs(vector<vector<char>>& grid, int i, int j){
+    if(i < 0 || i >= grid.size() || j < 0 || j >= grid[0].size()) return;
+    if(grid[i][j] == '0') return;
+    grid[i][j] = '0';  //标记为已经访问
+    dfs(grid, i-1, j);
+    dfs(grid, i+1, j);
+    dfs(grid, i, j-1);
+    dfs(grid, i, j+1);
+}
+```
+
+**单调栈**
+```cpp
+stack<int> st;
+for(int i = 0; i < nums.size(); i++){
+    while(!st.empty() && st.top() > nums[i]){  //单增栈
+        st.pop();
+        //do something
     }
-    if grid[i][j]=='1'{
-        // 标记已经访问过(每一个点只需要访问一次)
-        grid[i][j]=0
-        return dfs(grid,i-1,j)+dfs(grid,i,j-1)+dfs(grid,i+1,j)+dfs(grid,i,j+1)+1
-    }
-    return 0
+    st.push(nums[i]);
 }
 ```
 
@@ -266,7 +280,7 @@ func dfs(grid [][]byte,i,j int)int{
 
 ![image.png](https://img.fuiboom.com/img/stack_rain2.png)
 
-- 利用单调栈去做这件事情
+- 利用**单调栈**去做这件事情
 
 ```cpp
 int largestRectangleArea(vector<int>& heights) {
@@ -456,6 +470,16 @@ func updateMatrix(matrix [][]int) [][]int {
   - 利用栈 DFS 深度搜索
 - 熟悉队列的使用场景
   - 利用队列 BFS 广度搜索
+- 单调栈
+  - 单调递增/减栈：栈内元素保持递增/减的栈
+  - 以单增栈为例：
+    - 如果新元素比栈顶元素大，就入栈
+    - 否则一直弹出栈顶元素，知道栈顶元素比新元素小，再将其压栈
+  - 用处：
+    - 栈内元素递增
+    - 当元素出栈时，这个**新元素**是栈顶元素**往后**找第一个比之小的元素
+    - 当元素出栈后，新**栈顶元素**是出栈元素**往前**找第一个比之小的元素
+  - 
 
 ## 练习
 
