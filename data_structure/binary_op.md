@@ -32,15 +32,14 @@ diff=(n&(n-1))^n
 
 > 给定一个**非空**整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。
 
-```go
-func singleNumber(nums []int) int {
-    // 10 ^10 == 00
-    // 两个数异或就变成0
-    result:=0
-    for i:=0;i<len(nums);i++{
-        result=result^nums[i]
+```cpp
+int singleNumber(vector<int>& nums) {
+    int a = 0;
+    for(int i = 0; i < nums.size(); i++){
+        a = a^nums[i];
     }
-    return result
+
+    return a;
 }
 ```
 
@@ -98,14 +97,14 @@ func singleNumber(nums []int) []int {
 
 > 编写一个函数，输入是一个无符号整数，返回其二进制表达式中数字位数为 ‘1’  的个数（也被称为[汉明重量](https://baike.baidu.com/item/%E6%B1%89%E6%98%8E%E9%87%8D%E9%87%8F)）。
 
-```go
-func hammingWeight(num uint32) int {
-    res:=0
-    for num!=0{
-        num=num&(num-1)
-        res++
+```cpp
+int hammingWeight(uint32_t n) {
+    int res = 0;
+    while(n > 0){
+        n = n & (n-1);
+        res++;
     }
-    return res
+    return res;
 }
 ```
 
