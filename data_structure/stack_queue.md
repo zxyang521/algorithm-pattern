@@ -311,75 +311,60 @@ int largestRectangleArea(vector<int>& heights) {
 
 > 使用栈实现队列
 
-```go
-type MyQueue struct {
-    stack []int
-    back  []int
-}
+```cpp
+class MyQueue {
+public:
+    stack<int> inSt;
+    stack<int> outSt;
+    /** Initialize your data structure here. */
+    MyQueue() {
 
-/** Initialize your data structure here. */
-func Constructor() MyQueue {
-    return MyQueue{
-        stack: make([]int, 0),
-        back:  make([]int, 0),
     }
-}
-
-// 1
-// 3
-// 5
-
-/** Push element x to the back of queue. */
-func (this *MyQueue) Push(x int) {
-    for len(this.back) != 0 {
-        val := this.back[len(this.back)-1]
-        this.back = this.back[:len(this.back)-1]
-        this.stack = append(this.stack, val)
+    
+    /** Push element x to the back of queue. */
+    void push(int x) {
+        inSt.push(x);
     }
-    this.stack = append(this.stack, x)
-}
-
-/** Removes the element from in front of queue and returns that element. */
-func (this *MyQueue) Pop() int {
-    for len(this.stack) != 0 {
-        val := this.stack[len(this.stack)-1]
-        this.stack = this.stack[:len(this.stack)-1]
-        this.back = append(this.back, val)
+    
+    /** Removes the element from in front of queue and returns that element. */
+    int pop() {
+        if(!outSt.empty()){
+            int ele = outSt.top();
+            outSt.pop();
+            return ele;
+        }
+        else {
+            while(inSt.size() > 1){
+                outSt.push(inSt.top());
+                inSt.pop();
+            }
+            int ele = inSt.top();
+            inSt.pop();
+            return ele;
+        }
+        
     }
-    if len(this.back) == 0 {
-        return 0
+    
+    /** Get the front element. */
+    int peek() {
+        int ele = this->pop();
+        outSt.push(ele);
+        return ele;
     }
-    val := this.back[len(this.back)-1]
-    this.back = this.back[:len(this.back)-1]
-    return val
-}
-
-/** Get the front element. */
-func (this *MyQueue) Peek() int {
-    for len(this.stack) != 0 {
-        val := this.stack[len(this.stack)-1]
-        this.stack = this.stack[:len(this.stack)-1]
-        this.back = append(this.back, val)
+    
+    /** Returns whether the queue is empty. */
+    bool empty() {
+        return inSt.empty() && outSt.empty();
     }
-    if len(this.back) == 0 {
-        return 0
-    }
-    val := this.back[len(this.back)-1]
-    return val
-}
-
-/** Returns whether the queue is empty. */
-func (this *MyQueue) Empty() bool {
-    return len(this.stack) == 0 && len(this.back) == 0
-}
+};
 
 /**
  * Your MyQueue object will be instantiated and called as such:
- * obj := Constructor();
- * obj.Push(x);
- * param_2 := obj.Pop();
- * param_3 := obj.Peek();
- * param_4 := obj.Empty();
+ * MyQueue* obj = new MyQueue();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->peek();
+ * bool param_4 = obj->empty();
  */
 ```
 
@@ -467,9 +452,9 @@ func updateMatrix(matrix [][]int) [][]int {
 
 - 熟悉栈的使用场景
   - 后进先出，保存临时值
-  - 利用栈 DFS 深度搜索
+  - 利用栈 ```DFS``` 深度搜索
 - 熟悉队列的使用场景
-  - 利用队列 BFS 广度搜索
+  - 利用队列 ```BFS``` 广度搜索
 - 单调栈
   - 单调递增/减栈：栈内元素保持递增/减的栈
   - 以单增栈为例：
@@ -479,7 +464,7 @@ func updateMatrix(matrix [][]int) [][]int {
     - 栈内元素递增
     - 当元素出栈时，这个**新元素**是栈顶元素**往后**找第一个比之小的元素
     - 当元素出栈后，新**栈顶元素**是出栈元素**往前**找第一个比之小的元素
-  - 
+
 
 ## 练习
 
