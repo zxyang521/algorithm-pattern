@@ -399,7 +399,7 @@ vector<vector<int>> levelOrder(TreeNode* root){
 > 给定一个由 0 和 1 组成的矩阵，找出每个元素到最近的 0 的距离。
 > 两个相邻元素间的距离为 1
 
-```go
+```cpp
 // BFS 从0进队列，弹出之后计算上下左右的结果，将上下左右重新进队列进行二层操作
 // 0 0 0 0
 // 0 x 0 0
@@ -415,36 +415,34 @@ vector<vector<int>> levelOrder(TreeNode* root){
 // 0 1 0 0
 // 1 2 1 0
 // 0 1 0 0
-func updateMatrix(matrix [][]int) [][]int {
-    q:=make([][]int,0)
-    for i:=0;i<len(matrix);i++{
-        for j:=0;j<len(matrix[0]);j++{
-            if matrix[i][j]==0{
-                // 进队列
-                point:=[]int{i,j}
-                q=append(q,point)
-            }else{
-                matrix[i][j]=-1
-            }
-        }
-    }
-    directions:=[][]int{{0,1},{0,-1},{-1,0},{1,0}}
-    for len(q)!=0{
-        // 出队列
-        point:=q[0]
-        q=q[1:]
-        for _,v:=range directions{
-            x:=point[0]+v[0]
-            y:=point[1]+v[1]
-            if x>=0&&x<len(matrix)&&y>=0&&y<len(matrix[0])&&matrix[x][y]==-1{
-                matrix[x][y]=matrix[point[0]][point[1]]+1
-                // 将当前的元素进队列，进行一次BFS
-                q=append(q,[]int{x,y})
-            }
-        }
-    }
-    return matrix
+vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
+    if(matrix.empty()) return {};
 
+    queue<pair<int, int>> q;
+    vector<vector<int>> directions{{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    //矩阵中为0的元素作为bfs的第一层
+    for(int i = 0; i < matrix.size(); i++){
+        for(int j = 0; j < matrix[0].size(); j++){
+            if(matrix[i][j] == 0) q.push(make_pair(i, j));
+            else matrix[i][j] = -1;
+        }
+    }
+
+    // BFS 
+    while(!q.empty()){
+        pair<int, int> point = q.front();
+        q.pop();
+        for(int i = 0; i < 4; i++){
+            int x = point.first + directions[i][0];
+            int y = point.second + directions[i][1];
+            if(x >= 0 && x < matrix.size() && y >= 0 && y < matrix[0].size() && matrix[x][y] == -1){
+                matrix[x][y] = 1 + matrix[point.first][point.second];
+                q.push(make_pair(x, y));
+            }
+        }
+    }
+
+    return matrix;
 }
 ```
 
