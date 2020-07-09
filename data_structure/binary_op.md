@@ -109,34 +109,34 @@ int hammingWeight(uint32_t n) {
 
 > 给定一个非负整数  **num**。对于  0 ≤ i ≤ num  范围中的每个数字  i ，计算其二进制数中的 1 的数目并将它们作为数组返回。
 
-```go
-func countBits(num int) []int {
-    res:=make([]int,num+1)
-
-    for i:=0;i<=num;i++{
-        res[i]=count1(i)
+```cpp
+vector<int> countBits(int num) {
+    vector<int> res;
+    for(int i = 0; i <= num; i++){
+        res.push_back(count(i));
     }
-    return res
+    return res;
 }
-func count1(n int)(res int){
-    for n!=0{
-        n=n&(n-1)
-        res++
+
+int count(int n){
+    int res = 0;
+    while(n){
+        n = n&(n-1);
+        res++;
     }
-    return
+    return res;
 }
 ```
 
 另外一种动态规划解法
 
-```go
-func countBits(num int) []int {
-    res:=make([]int,num+1)
-    for i:=1;i<=num;i++{
-        // 上一个缺1的元素+1即可
-        res[i]=res[i&(i-1)]+1
+```cpp
+vector<int> countBits(int num) {
+    vector<int> res(num+1, 0);
+    for(int i = 1; i <= num; ++ i) {
+        res[i] = res[i&(i-1)] + 1;
     }
-    return res
+    return res;
 }
 ```
 
@@ -146,17 +146,16 @@ func countBits(num int) []int {
 
 思路：依次颠倒即可
 
-```go
-func reverseBits(num uint32) uint32 {
-    var res uint32
-    var pow int=31
-    for num!=0{
-        // 把最后一位取出来，左移之后累加到结果中
-        res+=(num&1)<<pow
-        num>>=1
-        pow--
+```cpp
+uint32_t reverseBits(uint32_t n) {
+    uint32_t res = 0;
+    int i = 31;
+    while(n){
+        res += (n&1)<<i;
+        n>>=1;
+        i--;
     }
-    return res
+    return res;
 }
 ```
 
@@ -164,23 +163,24 @@ func reverseBits(num uint32) uint32 {
 
 > 给定范围 [m, n]，其中 0 <= m <= n <= 2147483647，返回此范围内所有数字的按位与（包含 m, n 两端点）。
 
-```go
-func rangeBitwiseAnd(m int, n int) int {
-    // m 5 1 0 1
-    //   6 1 1 0
-    // n 7 1 1 1
-    // 把可能包含0的全部右移变成
-    // m 5 1 0 0
-    //   6 1 0 0
-    // n 7 1 0 0
-    // 所以最后结果就是m<<count
-    var count int
-    for m!=n{
-        m>>=1
-        n>>=1
-        count++
+```cpp
+// m 5 1 0 1
+//   6 1 1 0
+// n 7 1 1 1
+// 把可能包含0的全部右移变成
+// m 5 1 0 0
+//   6 1 0 0
+// n 7 1 0 0
+// 所以最后结果就是m<<count
+int rangeBitwiseAnd(int m, int n) {
+    int i = 0;
+    while(m != n){
+        m >>= 1;
+        n >>= 1;
+        i++;
     }
-    return m<<count
+    return m<<i;
+
 }
 ```
 
