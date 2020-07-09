@@ -47,20 +47,21 @@ int singleNumber(vector<int>& nums) {
 
 > 给定一个**非空**整数数组，除了某个元素只出现一次以外，其余每个元素均出现了三次。找出那个只出现了一次的元素。
 
-```go
-func singleNumber(nums []int) int {
-	// 统计每位1的个数
-	var result int
-	for i := 0; i < 64; i++ {
-		sum := 0
-		for j := 0; j < len(nums); j++ {
-			// 统计1的个数
-			sum += (nums[j] >> i) & 1
-		}
-		// 还原位00^10=10 或者用| 也可以
-		result ^= (sum % 3) << i
-	}
-	return result
+```cpp
+int singleNumber(vector<int>& nums) {
+    // 统计位数上1出现的次数
+    int res = 0;
+    
+    for(int i = 0; i < 32; i++){
+        int sum = 0;
+
+        for(int j = 0; j < nums.size(); j++)
+            sum += (nums[j] >> i) & 1; //右移
+
+        res ^= (sum % 3) << i;  //左移，这里可以推广到其他每个元素出现k次，找只出现1次的元素.
+    }
+    return res;
+
 }
 ```
 
@@ -68,28 +69,24 @@ func singleNumber(nums []int) int {
 
 > 给定一个整数数组  `nums`，其中恰好有两个元素只出现一次，其余所有元素均出现两次。 找出只出现一次的那两个元素。
 
-```go
-func singleNumber(nums []int) []int {
-    // a=a^b
-    // b=a^b
-    // a=a^b
-    // 关键点怎么把a^b分成两部分,方案：可以通过diff最后一个1区分
+```cpp
+vector<int> singleNumber(vector<int>& nums) {
+    if(nums.empty()) return {-1, -1};
+    int a = 0;
+    for(int i = 0; i < nums.size(); i++){
+        a ^= nums[i];
+    }
+    vector<int> res{a, a};
+    //得到末尾的1
+    a = (a&(a-1)) ^ a;
+    for(int i = 0; i < nums.size(); i++){
+        if((a & nums[i]) == 0)
+            res[0] ^= nums[i];
+        else
+            res[1] ^= nums[i];
+    }
 
-    diff:=0
-    for i:=0;i<len(nums);i++{
-        diff^=nums[i]
-    }
-    result:=[]int{diff,diff}
-    // 去掉末尾的1后异或diff就得到最后一个1的位置
-    diff=(diff&(diff-1))^diff
-    for i:=0;i<len(nums);i++{
-        if diff&nums[i]==0{
-            result[0]^=nums[i]
-        }else{
-            result[1]^=nums[i]
-        }
-    }
-    return result
+    return res;
 }
 ```
 
