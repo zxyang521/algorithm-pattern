@@ -21,6 +21,63 @@ bool isSorted(vector<int>& a, int i, int j){
 
 ## 常考排序
 
+### 选择排序
+```cpp
+//选择排序
+void selectionSort(vector<int>& a){
+    int n = a.size();
+    for(int i = 0; i < n; i++){
+        int min = i;
+        for(int j = i + 1; j < n; j++){
+            if(a[j] < min)
+                min = j;
+        }
+        swap(a, i , j);
+    }
+
+}
+```
+
+### 插入排序
+
+```cpp
+//插入排序
+void insertionSort(vector<int>& a){
+    int n = a.size();
+    for(int i = 1; i < n; i ++){
+        for(int j = i; j > 0; j--){
+            if(a[j] < a[j - 1]){
+                swap(a, j, j - 1);
+            }
+            else break;
+        }
+    }
+}
+```
+
+### 希尔排序(壳排序)
+```cpp
+//壳排序
+void shellSort(vector<int>& a){
+    
+    int n = a.size();
+    int H = 1;
+    while(H < n) H = 3 * H + 1; //壳的序列
+
+    for(int h = H; h >= 1; h = (H - 1) / 3){
+        // 插入排序
+        for(int i = 1; i < n; i++){
+            for(int j = i; j > h; j-=h){
+                if(a[j] < a[j - h])   swap(a, j, j - h);
+                else break;
+            }
+        }
+
+    }
+    
+}
+```
+
 ### 快速排序
 
 ```cpp
