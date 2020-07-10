@@ -211,34 +211,21 @@ int findMin(vector<int>& nums) {
 > ( 例如，数组  [0,1,2,4,5,6,7] 可能变为  [4,5,6,7,0,1,2] )。
 > 请找出其中最小的元素。(包含重复元素)
 
-```go
-func findMin(nums []int) int {
-    // 思路：跳过重复元素，mid值和end值比较，分为两种情况进行处理
-    if len(nums) == 0 {
-        return -1
+// 思路：跳过重复元素，mid值和end值比较，分为两种情况进行处理
+```cpp
+int findMin(vector<int>& nums) {
+    if(nums.empty()) return 0;
+    int left = 0, right = nums.size() - 1;
+    if(nums[left] < nums[right]) return nums[left]; // 说明没旋转
+    while(left + 1 < right){
+        //去重
+        while(left < right && nums[left + 1] == nums[left]) left++;
+        while(left < right && nums[right - 1] == nums[right]) right--;
+        int mid = left + (right - left) / 2;
+        if(nums[mid] >= nums[left]) left = mid;
+        else right = mid;
     }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        // 去除重复元素
-        for start < end && nums[end] == nums[end-1] {
-            end--
-        }
-        for start < end && nums[start] == nums[start+1] {
-            start++
-        }
-        mid := start + (end-start)/2
-        // 中间元素和最后一个元素比较（判断中间点落在左边上升区，还是右边上升区）
-        if nums[mid] <= nums[end] {
-            end = mid
-        } else {
-            start = mid
-        }
-    }
-    if nums[start] > nums[end] {
-        return nums[end]
-    }
-    return nums[start]
+    return min(nums[left], nums[right]);
 }
 ```
 
@@ -249,41 +236,27 @@ func findMin(nums []int) int {
 > 搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回  -1 。
 > 你可以假设数组中不存在重复的元素。
 
-```go
-func search(nums []int, target int) int {
-    // 思路：/ / 两条上升直线，四种情况判断
-    if len(nums) == 0 {
-        return -1
-    }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        mid := start + (end-start)/2
-        // 相等直接返回
-        if nums[mid] == target {
-            return mid
+```cpp
+int search(vector<int>& nums, int target) {
+    if(nums.empty()) return -1;
+    int left = 0, right = nums.size() - 1;
+    while(left + 1 < right){
+        int mid = left + (right - left) / 2;
+        if(nums[mid] == target) return mid;
+        if(nums[mid] > nums[left]){
+            if(target >= nums[left] && target <= nums[mid]) right = mid;
+            else left = mid;
         }
-        // 判断在那个区间，可能分为四种情况
-        if nums[start] < nums[mid] {
-            if nums[start] <= target && target <= nums[mid] {
-                end = mid
-            } else {
-                start = mid
-            }
-        } else if nums[end] > nums[mid] {
-            if nums[end] >= target && nums[mid] <= target {
-                start = mid
-            } else {
-                end = mid
-            }
+        else{
+            if(target <= nums[right] && target >= nums[mid]) left = mid;
+            else right = mid;
         }
     }
-    if nums[start] == target {
-        return start
-    } else if nums[end] == target {
-        return end
-    }
-    return -1
+
+    if(nums[left] == target) return left;
+    else if(nums[right] == target) return right;
+    else return -1;
+
 }
 ```
 
@@ -297,46 +270,26 @@ func search(nums []int, target int) int {
 > ( 例如，数组  [0,0,1,2,2,5,6]  可能变为  [2,5,6,0,0,1,2] )。
 > 编写一个函数来判断给定的目标值是否存在于数组中。若存在返回  true，否则返回  false。(包含重复元素)
 
-```go
-func search(nums []int, target int) bool {
-    // 思路：/ / 两条上升直线，四种情况判断，并且处理重复数字
-    if len(nums) == 0 {
-        return false
-    }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        // 处理重复数字
-        for start < end && nums[start] == nums[start+1] {
-            start++
+```cpp
+bool search(vector<int>& nums, int target) {
+    if(nums.empty()) return false;
+    int left = 0, right = nums.size() - 1;
+    while(left + 1 < right){
+        while(left < right && nums[left+1] == nums[left]) left++;
+        while(left < right && nums[right-1] == nums[right]) right--;
+        int mid = left + (right - left) / 2;
+        if(nums[mid] == target) return true;
+        if(nums[mid] >= nums[left]){   //注意是等号
+            if(target >= nums[left] && target <= nums[mid]) right = mid;
+            else left = mid;
         }
-        for start < end && nums[end] == nums[end-1] {
-            end--
-        }
-        mid := start + (end-start)/2
-        // 相等直接返回
-        if nums[mid] == target {
-            return true
-        }
-        // 判断在那个区间，可能分为四种情况
-        if nums[start] < nums[mid] {
-            if nums[start] <= target && target <= nums[mid] {
-                end = mid
-            } else {
-                start = mid
-            }
-        } else if nums[end] > nums[mid] {
-            if nums[end] >= target && nums[mid] <= target {
-                start = mid
-            } else {
-                end = mid
-            }
+        else{
+            if(target >= nums[mid] && target <= nums[right]) left = mid;
+            else right = mid;
         }
     }
-    if nums[start] == target || nums[end] == target {
-        return true
-    }
-    return false
+    if(nums[left] == target || nums[right] == target) return true;
+    else return false;
 }
 ```
 
