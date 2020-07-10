@@ -1,86 +1,139 @@
 # 排序
 
+```cpp
+//help函数
+//交换数组a中的i和j
+void swap(vector<int> & a, int i, int j ){
+    int tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
+}
+
+//判断是否是排序好的数组
+bool isSorted(vector<int>& a, int i, int j){
+    for(int k = i; k < j; k++){
+        if(a[k] > a[k + 1]) return false;
+    }
+    
+    return true;
+}
+```
+
 ## 常考排序
 
 ### 快速排序
 
-```go
-func QuickSort(nums []int) []int {
-    // 思路：把一个数组分为左右两段，左段小于右段
-    quickSort(nums, 0, len(nums)-1)
-    return nums
+```cpp
+//快速排序，快排
+void quickSort(vector<int>& a){
+
+    random_shuffle(a);
+    int n = a.size();
+    quick_sort(a, 0, n - 1);
+}
+
+void quick_sort(vector<int>& a, int low, int high){
+    if(low >= high) return;
+    int pivot = partition(a, low, high);
+    quick_sort(a, low, pivot - 1);
+    quick_sort(a, pivot + 1, high);
+}
+
+static int partition(vector<int>& a, int low, int high){
+    int i = low, j = high + 1;
+    while(i < j){
+
+        while(a[++i] < a[low])
+            if(i == high) break;
+        
+        while(a[low] < a[--j])
+            if(j == low) break;
+        
+        swap(a, i, j);
+    }
+    swap(a, low, j);
+    return j;
+}
+
+// 选择k
+static int select(vector<int>& a, int k){
+
+    int low = 0, high = a.size() - 1;
+    while(low < high){
+        int pivot = partition(a, low, high);
+        if(pivot < k) low = pivot + 1;
+        else if(pivot > k) high = pivot - 1;
+        else return a[k];
+    }
+
+    return a[k];
 
 }
-// 原地交换，所以传入交换索引
-func quickSort(nums []int, start, end int) {
-    if start < end {
-        // 分治法：divide
-        pivot := partition(nums, start, end)
-        quickSort(nums, 0, pivot-1)
-        quickSort(nums, pivot+1, end)
-    }
-}
-// 分区
-func partition(nums []int, start, end int) int {
-    // 选取最后一个元素作为基准pivot
-    p := nums[end]
-    i := start
-    // 最后一个值就是基准所以不用比较
-    for j := start; j < end; j++ {
-        if nums[j] < p {
-            swap(nums, i, j)
-            i++
-        }
-    }
-    // 把基准值换到中间
-    swap(nums, i, end)
-    return i
-}
-// 交换两个元素
-func swap(nums []int, i, j int) {
-    t := nums[i]
-    nums[i] = nums[j]
-    nums[j] = t
+
+//重复键值，3-way partition
+void quick3ways(vector<int>& a, int low, int high){
+    // See page 289 for public sort() that calls this method.
+    if (high <= low) return;
+    int lt = low, i = low + 1, gt = high;
+    int v = a[low];
+    while (i <= gt)
+    {
+        if (a[i] < v) swap(a, lt++, i++); 
+        else if (a[i] > v) swap(a, i, gt--); 
+        else i++;
+    } // Now a[lo..lt-1] < v = a[lt..gt] < a[gt+1..hi]. sort(a, lo, lt - 1);
+    quick3ways(a, low, lt - 1);
+    quick3ways(a, gt + 1, high);
 }
 ```
 
 ### 归并排序
 
-```go
-func MergeSort(nums []int) []int {
-    return mergeSort(nums)
+```cpp
+//归并排序
+/*version1 递归*/
+void mergeSort(vector<int>& a){
+    int n = a.size();
+    vector<int> aux(n);
+    merge_sort(a, aux, 0, n - 1);
 }
-func mergeSort(nums []int) []int {
-    if len(nums) <= 1 {
-        return nums
+
+void merge_sort(vector<int>& a, vector<int>& aux, int low, int high){
+    if(low >= high) return;
+
+    int middle = low + (high - low)/2;
+    merge_sort(a, aux, low, middle);
+    merge_sort(a, aux, middle + 1, high);
+    merge(a, aux, low, middle, high);
+}
+
+void merge(vector<int>& a, vector<int>& aux, int low, int middle, int high){
+    assert isSorted(a, low, middle);
+    assert isSorted(a, middle + 1, high);
+
+    for(int k = low; k <= high; k++)
+        aux[k] = a[k];
+    
+    int i = low, j = middle + 1;
+    int k = low;
+    for(int k = low; k <= high; k++){
+        if(i > middle) a[k] = aux[j++];
+        else if(j > high) a[k] = aux[i++];
+        else if(a[i] > a[j]) a[k] = aux[j++];
+        else a[k] = aux[i++];
     }
-    // 分治法：divide 分为两段
-    mid := len(nums) / 2
-    left := mergeSort(nums[:mid])
-    right := mergeSort(nums[mid:])
-    // 合并两段数据
-    result := merge(left, right)
-    return result
 }
-func merge(left, right []int) (result []int) {
-    // 两边数组合并游标
-    l := 0
-    r := 0
-    // 注意不能越界
-    for l < len(left) && r < len(right) {
-        // 谁小合并谁
-        if left[l] > right[r] {
-            result = append(result, right[r])
-            r++
-        } else {
-            result = append(result, left[l])
-            l++
+
+/*version 2 bottom-up 归并排序 */
+void buMergeSort(vector<int>& a){
+    int n = a.size();
+    vector<int> aux(n);
+    for(int i = 1; i <= n; i = 2 * i){
+        for(int low = 0; low < n - i; low += 2 * i){
+            merge(a, aux, low, low + i - 1,  min(n - 1, low + 2 * i - 1));
         }
     }
-    // 剩余部分合并
-    result = append(result, left[l:]...)
-    result = append(result, right[r:]...)
-    return
+
 }
 ```
 
@@ -98,53 +151,42 @@ func merge(left, right []int) (result []int) {
 
 核心代码
 
-```go
-package main
+```cpp
+//堆排序
+//核心代码
+void heapSort(vector<int>& a){
+    // 1. 无序数组a
+    // 2. 构建成一个大根堆
+    for(int i = a.size() / 2 - 1; i >= 0; i--){
+        sink(a, i, a.size());
+    }
+    //3. 交换a[0] 和 a[a.size()-1]
+    //4. 然后把前面这段数组持续下沉保持堆结构，如此循环
+    for (int i = a.size() - 1; i >= 1; i--){
+        // 从后往前填充
+        swap(a, 0, i);
+        // 前面的长度减一
+        sink(a, 0, i);
+    }
+}
 
-func HeapSort(a []int) []int {
-    // 1、无序数组a
-	// 2、将无序数组a构建为一个大根堆
-	for i := len(a)/2 - 1; i >= 0; i-- {
-		sink(a, i, len(a))
-	}
-	// 3、交换a[0]和a[len(a)-1]
-	// 4、然后把前面这段数组继续下沉保持堆结构，如此循环即可
-	for i := len(a) - 1; i >= 1; i-- {
-		// 从后往前填充值
-		swap(a, 0, i)
-		// 前面的长度也减一
-		sink(a, 0, i)
-	}
-	return a
-}
-func sink(a []int, i int, length int) {
-	for {
-		// 左节点索引(从0开始，所以左节点为i*2+1)
-		l := i*2 + 1
-		// 有节点索引
-		r := i*2 + 2
-		// idx保存根、左、右三者之间较大值的索引
-		idx := i
-		// 存在左节点，左节点值较大，则取左节点
-		if l < length && a[l] > a[idx] {
-			idx = l
-		}
-		// 存在有节点，且值较大，取右节点
-		if r < length && a[r] > a[idx] {
-			idx = r
-		}
-		// 如果根节点较大，则不用下沉
-		if idx == i {
-			break
-		}
-		// 如果根节点较小，则交换值，并继续下沉
-		swap(a, i, idx)
-		// 继续下沉idx节点
-		i = idx
-	}
-}
-func swap(a []int, i, j int) {
-	a[i], a[j] = a[j], a[i]
+void sink(vector<int>& a, int i, int length){
+    while(true){
+        // 左节点索引(从0开始，所以左节点为i*2+1)
+        int l = 2 * i + 1;
+        //右节点索引
+        int r = 2 * i + 2;
+        //idx保存根左右三者较大值的索引
+        idx = i;
+        // 存在左节点，左节点值较大，则取左节点
+        if (l < length && a[l] > a[idx])  idx = l;
+        // 存在右节点，右节点值较大，则取右节点
+        if (r < length && a[r] > a[idx]) idx = r;
+        //根节点较大，不用下沉
+        if(idx == i) break;
+        swap(a, i, idx);
+        i = idx;
+    }
 }
 
 ```
