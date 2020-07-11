@@ -39,8 +39,8 @@
 
 动态规划和 DFS 区别
 
-- 二叉树 子问题是没有交集，所以大部分二叉树都用递归或者分治法，即 DFS，就可以解决
-- 像 triangle 这种是有重复走的情况，**子问题是有交集**，所以可以用动态规划来解决
+- 二叉树 子问题是没有交集，所以大部分二叉树都用递归或者分治法，即 ```DFS```，就可以解决
+- 像 ```triangle``` 这种是有重复走的情况，**子问题是有交集**，所以可以用动态规划来解决
 
 动态规划，自底向上
 
@@ -638,35 +638,22 @@ func min(a,b int)int{
 
 思路：和其他 DP 不太一样，i 表示钱或者容量
 
-```go
-func coinChange(coins []int, amount int) int {
+```cpp
     // 状态 dp[i]表示金额为i时，组成的最小硬币个数
     // 推导 dp[i]  = min(dp[i-1], dp[i-2], dp[i-5])+1, 前提 i-coins[j] > 0
     // 初始化为最大值 dp[i]=amount+1
     // 返回值 dp[n] or dp[n]>amount =>-1
-    dp:=make([]int,amount+1)
-    for i:=0;i<=amount;i++{
-        dp[i]=amount+1
-    }
-    dp[0]=0
-    for i:=1;i<=amount;i++{
-        for j:=0;j<len(coins);j++{
-            if  i-coins[j]>=0  {
-                dp[i]=min(dp[i],dp[i-coins[j]]+1)
-            }
+int coinChange(vector<int>& coins, int amount) {
+    if(coins.empty()) return -1;
+    vector<int> dp(amount + 1, amount+1);
+    dp[0] = 0;
+    for(int i = 1; i <= amount; i++){
+        for(int j = 0; j < coins.size(); j++){
+            if(i >= coins[j]) dp[i] = min(dp[i-coins[j]] + 1, dp[i]);
         }
     }
-    if dp[amount] > amount {
-        return -1
-    }
-    return dp[amount]
 
-}
-func min(a,b int)int{
-    if a>b{
-        return b
-    }
-    return a
+    return dp[amount] == amount+1?-1: dp[amount];
 }
 ```
 
@@ -677,6 +664,13 @@ func min(a,b int)int{
 ### [backpack](https://www.lintcode.com/problem/backpack/description)
 
 > 在 n 个物品中挑选若干物品装入背包，最多能装多满？假设背包的大小为 m，每个物品的大小为 A[i]
+
+```cpp
+int backPack(vetor<int>& backpack, int m){
+    if(backpack.empty()) return 0;
+    int n = backpack.size();
+}
+```
 
 ```go
 func backPack (m int, A []int) int {
