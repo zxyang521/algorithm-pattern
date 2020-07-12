@@ -146,14 +146,14 @@ Function(x) {
 }
 ```
 
-动态规划：是一种解决问 题的思想，大规模问题的结果，是由小规模问 题的结果运算得来的。动态规划可用递归来实现(Memorization Search)
+动态规划：是一种解决问题的思想，大规模问题的结果，是由小规模问题的结果运算得来的。动态规划可用递归来实现(Memorization Search)
 
 ## 使用场景
 
 满足两个条件
 
 - 满足以下条件之一
-  - 求最大/最小值（Maximum/Minimum ）
+  - 求最大/最小值（Maximum/Minimum）
   - 求是否可行（Yes/No ）
   - 求可行个数（Count(\*) ）
 - 满足不能排序或者交换（Can not sort / swap ）
@@ -164,11 +164,11 @@ Function(x) {
 
 1. **状态 State**
    - 灵感，创造力，存储小规模问题的结果
-2. 方程 Function
+2. **方程 Function**
    - 状态之间的联系，怎么通过小的状态，来算大的状态
-3. 初始化 Intialization
+3. **初始化 Intialization**
    - 最极限的小状态是什么, 起点
-4. 答案 Answer
+4. **答案 Answer**
    - 最大的那个状态是什么，终点
 
 ## 常见四种类型
@@ -180,7 +180,7 @@ Function(x) {
 
 > 注意点
 >
-> - 贪心算法大多题目靠背答案，所以如果能用动态规划就尽量用动规，不用贪心算法
+> - 贪心算法大多题目靠背答案，所以如果能用动态规划就尽量用动规，不用贪心算法。
 
 ## 1、矩阵类型（10%）
 
@@ -666,41 +666,56 @@ int coinChange(vector<int>& coins, int amount) {
 > 在 n 个物品中挑选若干物品装入背包，最多能装多满？假设背包的大小为 m，每个物品的大小为 A[i]
 
 ```cpp
-int backPack(vetor<int>& backpack, int m){
-    if(backpack.empty()) return 0;
-    int n = backpack.size();
-}
-```
-
-```go
-func backPack (m int, A []int) int {
+int backPack(vector<int>& A, int m) {
     // write your code here
-    // f[i][j] 前i个物品，是否能装j
-    // f[i][j] =f[i-1][j] f[i-1][j-a[i] j>a[i]
-    // f[0][0]=true f[...][0]=true
-    // f[n][X]
-    f:=make([][]bool,len(A)+1)
-    for i:=0;i<=len(A);i++{
-        f[i]=make([]bool,m+1)
+    if(A.empty()) return 0;
+    int n = A.size();
+    vector<vector<int>> dp(n, vector<int>(m + 1)); //最多能装多少东西
+    
+    for(int i = 0; i < n; i++){
+        dp[i][0] = 0;   //背包大小为0，能装下最多也是0
     }
-    f[0][0]=true
-    for i:=1;i<=len(A);i++{
-        for j:=0;j<=m;j++{
-            f[i][j]=f[i-1][j]
-            if j-A[i-1]>=0 && f[i-1][j-A[i-1]]{
-                f[i][j]=true
-            }
+    
+    for(int i = 0; i <= m; i++){
+        if(A[0] <= i)  dp[0][i] = A[0];  //只有一件物品
+    }
+    
+    for(int i = 1; i < n; i++){
+        for(int j = 1; j <= m; j++){
+            int weight1 = dp[i-1][j];
+            int weight2 = 0;
+            if(A[i] <= j) weight2 = dp[i-1][j-A[i]] + A[i];
+            dp[i][j] = max(weight1, weight2);
         }
     }
-    for i:=m;i>=0;i--{
-        if f[len(A)][i] {
-            return i
-        }
-    }
-    return 0
+    
+    return dp[n-1][m];
 }
-
 ```
+观察上面循环过程就会发现，每次迭代只用到```i```和```i-1```两行，所以可以优化如下：
+```cpp
+int backPack(vector<int>& A, int m){
+    if(A.empty()) return 0;
+    int n = A.size();
+    vector<vector<int>> dp(2, vector<int>(m + 1)); //只需要保存上一次循环结果就行了
+
+    for(int i = 0; i <= m; i++)
+        if(A[0] <= i) dp[0][i] = dp[1][i] = A[0];  //只有一件物品
+
+    for(int i = 1; i < n; i++){
+        for(int j = 1; j <= m; j++){
+            int weight1 = dp[i%2-1][j];
+            int weight2 = 0;
+            if(A[i] <= j) weight2 = dp[i%2-1][j-A[i]] + A[i];
+            dp[i%2][j] = max(weight1, weight2);
+        }
+    }
+
+    return dp[n%2 - 1][m];
+
+}
+```
+
 
 ### [backpack-ii](https://www.lintcode.com/problem/backpack-ii/description)
 
@@ -708,32 +723,34 @@ func backPack (m int, A []int) int {
 > 问最多能装入背包的总价值是多大?
 
 思路：f[i][j] 前 i 个物品，装入 j 背包 最大价值
+- 跟上一题类似，只不过重量换成了利润
+- 可以优化成上一题
 
-```go
-func backPackII (m int, A []int, V []int) int {
+```cpp
+int backPackII(int m, vector<int> &A, vector<int> &V) {
     // write your code here
-    // f[i][j] 前i个物品，装入j背包 最大价值
-    // f[i][j] =max(f[i-1][j] ,f[i-1][j-A[i]]+V[i]) 是否加入A[i]物品
-    // f[0][0]=0 f[0][...]=0 f[...][0]=0
-    f:=make([][]int,len(A)+1)
-    for i:=0;i<len(A)+1;i++{
-        f[i]=make([]int,m+1)
+    if(A.empty()) return 0;
+    int n = A.size();
+    vector<vector<int>> dp(n, vector<int>(m + 1));
+    
+    for(int i = 0; i < n; i++){
+        dp[i][0] = 0;
     }
-    for i:=1;i<=len(A);i++{
-        for j:=0;j<=m;j++{
-            f[i][j]=f[i-1][j]
-            if j-A[i-1] >= 0{
-                f[i][j]=max(f[i-1][j],f[i-1][j-A[i-1]]+V[i-1])
-            }
+    
+    for(int i = 0; i <= m; i++){
+        if(A[0] <= i)  dp[0][i] = V[0];
+    }
+    
+    for(int i = 1; i < n; i++){
+        for(int j = 1; j <= m; j++){
+            int profit1 = dp[i-1][j];
+            int profit2 = 0;
+            if(A[i] <= j) profit2 = dp[i-1][j-A[i]] + V[i];
+            dp[i][j] = max(profit1, profit2);
         }
     }
-    return f[len(A)][m]
-}
-func max(a,b int)int{
-    if a>b{
-        return a
-    }
-    return b
+    
+    return dp[n-1][m];
 }
 ```
 
