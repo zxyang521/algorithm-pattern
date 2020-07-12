@@ -189,38 +189,30 @@ Function(x) {
 > 给定一个包含非负整数的  *m* x *n*  网格，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
 
 思路：动态规划
-1、state: f[x][y]从起点走到 x,y 的最短路径
-2、function: f[x][y] = min(f[x-1][y], f[x][y-1]) + A[x][y]
-3、intialize: f[0][0] = A[0][0]、f[i][0] = sum(0,0 -> i,0)、 f[0][i] = sum(0,0 -> 0,i)
-4、answer: f[n-1][m-1]
+  - 1、state: f[x][y]从起点走到 x,y 的最短路径
+  - 2、function: f[x][y] = min(f[x-1][y], f[x][y-1]) + A[x][y]
+  - 3、intialize: f[0][0] = A[0][0]、f[i][0] = sum(0,0 -> i,0)、 f[0][i] = sum(0,0 -> 0,i)
+  - 4、answer: f[n-1][m-1]
 
-```go
-func minPathSum(grid [][]int) int {
-    // 思路：动态规划
-    // f[i][j] 表示i,j到0,0的和最小
-    if len(grid) == 0 || len(grid[0]) == 0 {
-        return 0
-    }
-    // 复用原来的矩阵列表
-    // 初始化：f[i][0]、f[0][j]
-    for i := 1; i < len(grid); i++ {
-        grid[i][0] = grid[i][0] + grid[i-1][0]
-    }
-    for j := 1; j < len(grid[0]); j++ {
-        grid[0][j] = grid[0][j] + grid[0][j-1]
-    }
-    for i := 1; i < len(grid); i++ {
-        for j := 1; j < len(grid[i]); j++ {
-            grid[i][j] = min(grid[i][j-1], grid[i-1][j]) + grid[i][j]
+```cpp
+int minPathSum(vector<vector<int>>& grid) {
+    if(grid.empty() || grid[0].empty()) return 0;
+    int m = grid.size();
+    int n = grid[0].size();
+
+    // vector<vector<int>> dp(m, vector<int>(n, INT_MAX));
+    // dp[0][0] = grid[0][0];
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            int left = INT_MAX;
+            int up = INT_MAX;
+            if(i-1 >= 0) left = grid[i-1][j];
+            if(j-1 >= 0) up = grid[i][j-1];
+            if(i != 0 || j != 0 ) grid[i][j] = min(left, up) + grid[i][j];  //直接复用原始矩阵
         }
     }
-    return grid[len(grid)-1][len(grid[0])-1]
-}
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
+
+    return grid[m-1][n-1];
 }
 ```
 
@@ -230,24 +222,22 @@ func min(a, b int) int {
 > 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
 > 问总共有多少条不同的路径？
 
-```go
-func uniquePaths(m int, n int) int {
-	// f[i][j] 表示i,j到0,0路径数
-	f := make([][]int, m)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if f[i] == nil {
-				f[i] = make([]int, n)
-			}
-			f[i][j] = 1
-		}
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			f[i][j] = f[i-1][j] + f[i][j-1]
-		}
-	}
-	return f[m-1][n-1]
+```cpp
+int uniquePaths(int m, int n) {
+    vector<vector<int>> dp(m, vector<int>(n));
+
+    dp[0][0] = 1;
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            int left = 0;
+            int up = 0;
+            if(i - 1 >= 0) left = dp[i-1][j];
+            if(j - 1 >= 0) up = dp[i][j-1];
+            if(i != 0 || j != 0)dp[i][j] = left + up;
+        }
+    }
+
+    return dp[m-1][n-1];
 }
 ```
 
@@ -258,43 +248,32 @@ func uniquePaths(m int, n int) int {
 > 问总共有多少条不同的路径？
 > 现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？
 
-```go
-func uniquePathsWithObstacles(obstacleGrid [][]int) int {
-	// f[i][j] = f[i-1][j] + f[i][j-1] 并检查障碍物
-	if obstacleGrid[0][0] == 1 {
-		return 0
-	}
-	m := len(obstacleGrid)
-	n := len(obstacleGrid[0])
-	f := make([][]int, m)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if f[i] == nil {
-				f[i] = make([]int, n)
-			}
-			f[i][j] = 1
-		}
-	}
-	for i := 1; i < m; i++ {
-		if obstacleGrid[i][0] == 1 || f[i-1][0] == 0 {
-			f[i][0] = 0
-		}
-	}
-	for j := 1; j < n; j++ {
-		if obstacleGrid[0][j] == 1 || f[0][j-1] == 0 {
-			f[0][j] = 0
-		}
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			if obstacleGrid[i][j] == 1 {
-				f[i][j] = 0
-			} else {
-				f[i][j] = f[i-1][j] + f[i][j-1]
-			}
-		}
-	}
-	return f[m-1][n-1]
+```cpp
+int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+    if(obstacleGrid.size() == 0 || obstacleGrid[0].size() == 0 || obstacleGrid[0][0]) return 0;
+    
+    int m = obstacleGrid.size();
+    int n =obstacleGrid[0].size();
+
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            if(obstacleGrid[i][j]){
+                obstacleGrid[i][j] = 0;
+                continue;
+            }
+            if(i == 0 && j == 0){
+                obstacleGrid[i][j] = 1;
+                continue;
+            }
+            int left = 0;
+            int up = 0;
+            if(i - 1 >= 0) left = obstacleGrid[i-1][j];
+            if(j - 1 >= 0) up = obstacleGrid[i][j-1];
+            obstacleGrid[i][j] = left + up;
+        }
+    }
+
+    return obstacleGrid[m-1][n-1];
 }
 ```
 
@@ -304,19 +283,19 @@ func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 
 > 假设你正在爬楼梯。需要  *n*  阶你才能到达楼顶。
 
-```go
-func climbStairs(n int) int {
-    // f[i] = f[i-1] + f[i-2]
-    if n == 1 || n == 0 {
-        return n
+```cpp
+int climbStairs(int n) {
+    if(n <= 2) return n;
+    int res = 0;
+    int f1 = 1;
+    int f2 = 2;
+    for(int i = 3; i <= n; i++){
+        res = f1 + f2; //复用变量
+        f1 = f2;
+        f2 = res;
     }
-    f := make([]int, n+1)
-    f[1] = 1
-    f[2] = 2
-    for i := 3; i <= n; i++ {
-        f[i] = f[i-1] + f[i-2]
-    }
-    return f[n]
+
+    return res;
 }
 ```
 
@@ -326,28 +305,42 @@ func climbStairs(n int) int {
 > 数组中的每个元素代表你在该位置可以跳跃的最大长度。
 > 判断你是否能够到达最后一个位置。
 
-```go
-func canJump(nums []int) bool {
-    // 思路：看最后一跳
-    // 状态：f[i] 表示是否能从0跳到i
-    // 推导：f[i] = OR(f[j],j<i&&j能跳到i) 判断之前所有的点最后一跳是否能跳到当前点
-    // 初始化：f[0] = 0
-    // 结果： f[n-1]
-    if len(nums) == 0 {
-        return true
-    }
-    f := make([]bool, len(nums))
-    f[0] = true
-    for i := 1; i < len(nums); i++ {
-        for j := 0; j < i; j++ {
-            if f[j] == true && nums[j]+j >= i {
-                f[i] = true
-            }
+```cpp
+bool canJump(vector<int>& nums) {
+// 第一种解法：会超时，时间复杂度高
+// 思路：看最后一跳
+// 状态：f[i] 表示是否能从0跳到i
+// 推导：f[i] = OR(f[j],j<i&&j能跳到i) 判断之前所有的点最后一跳是否能跳到当前点
+// 初始化：f[0] = 0
+// 结果： f[n-1]
+    if(nums.empty()) return true;
+    
+    vector<bool> dp(nums.size());
+    dp[0] = true;
+    for(int i = 1; i < nums.size(); i++){
+        for(int j = 0; j < i; j++){
+            if(dp[j] && j + nums[j] >= i)  dp[i] = true;
         }
     }
-    return f[len(nums)-1]
+    return dp[nums.size() - 1];  
 }
 ```
+
+```cpp
+bool canJump(vector<int>& nums) {
+    //version2: 直接找最远能跳到的距离
+    if(nums.empty()) return true;
+    int res = 0;
+    for(int i = 0; i < nums.size(); i++){
+        if(i > res) return false;
+        res = max(res, i + nums[i]);
+    }
+
+    return true;
+
+}
+```
+
 
 ### [jump-game-ii](https://leetcode-cn.com/problems/jump-game-ii/)
 
@@ -355,31 +348,41 @@ func canJump(nums []int) bool {
 > 数组中的每个元素代表你在该位置可以跳跃的最大长度。
 > 你的目标是使用最少的跳跃次数到达数组的最后一个位置。
 
-```go
-func jump(nums []int) int {
+```cpp
+int jump(vector<int>& nums) {
+    // version 1
     // 状态：f[i] 表示从起点到当前位置最小次数
     // 推导：f[i] = f[j],a[j]+j >=i,min(f[j]+1)
     // 初始化：f[0] = 0
     // 结果：f[n-1]
-    f := make([]int, len(nums))
-    f[0] = 0
-    for i := 1; i < len(nums); i++ {
-        // f[i] 最大值为i
-        f[i] = i
-        // 遍历之前结果取一个最小值+1
-        for j := 0; j < i; j++ {
-            if nums[j]+j >= i {
-                f[i] = min(f[j]+1,f[i])
-            }
+    if(nums.empty()) return 0;
+    vector<int> dp(nums.size(), INT_MAX);
+    dp[0] = 0;  //第一个位置不需要跳跃.
+    for(int i = 1; i < nums.size(); i++){
+        for(int j = 0; j < i; j++){
+            if(j + nums[j] >= i) dp[i] = min(dp[i], dp[j] + 1);
         }
     }
-    return f[len(nums)-1]
+
+    return dp[nums.size() - 1];
 }
-func min(a, b int) int {
-    if a > b {
-        return b
+```
+
+```cpp
+int jump(vector<int>& nums) {
+    // version 2: 贪心算法
+    if(nums.empty()) return 0;
+    int end = 0;
+    int res = 0;
+    int maxPos = 0;
+    for(int i = 0; i < nums.size() - 1; i++){
+        maxPos = max(maxPos, i + nums[i]);
+        if(i == end){
+            end = maxPos;
+            res++;
+        }
     }
-    return a
+    return res;
 }
 ```
 
@@ -388,7 +391,45 @@ func min(a, b int) int {
 > 给定一个字符串 _s_，将 _s_ 分割成一些子串，使每个子串都是回文串。
 > 返回符合要求的最少分割次数。
 
-```go
+```cpp
+int minCut(string s) {
+    if(s.length() == 0) return 0;
+    int n = s.length();
+    vector<vector<bool>> isPalind(n, vector<bool>(n, false));  // 记录下s总那些是位置之间是回文子串
+
+    for(int i = 0; i < n; i++)  isPalind[i][i] = true;  //单个字母都是回文
+
+    for(int start = n - 1; start >= 0; start--){
+        for(int end = start + 1; end < n; end++){
+            if(s[start] == s[end]){
+                if(end - start > 1)
+                    isPalind[start][end] = isPalind[start+1][end-1];
+                else isPalind[start][end] = true;
+            }
+            else isPalind[start][end] = false;
+        }
+    }
+
+    // now lets populate the second table, every index in 'cuts' stores the minimum cuts needed
+    // for the substring from that index till the end
+    vector<int> cuts(n, 0);
+    for (int startIndex = n - 1; startIndex >= 0; startIndex--) {
+    int minCuts = n; // maximum cuts
+    for (int endIndex = n - 1; endIndex >= startIndex; endIndex--) {
+        if (isPalind[startIndex][endIndex]) {
+        // we can cut here as we got a palindrome
+        // also we dont need any cut if the whole substring is a palindrome
+        minCuts = (endIndex == n - 1) ? 0 : min(minCuts, 1 + cuts[endIndex + 1]);
+        }
+    }
+    cuts[startIndex] = minCuts;
+    }
+    
+    return cuts[0];
+}
+```
+
+```cpp
 func minCut(s string) int {
 	// state: f[i] "前i"个字符组成的子字符串需要最少几次cut(个数-1为索引)
 	// function: f[i] = MIN{f[j]+1}, j < i && [j+1 ~ i]这一段是一个回文串
