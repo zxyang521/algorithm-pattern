@@ -412,7 +412,8 @@ int minCut(string s) {
 
     // now lets populate the second table, every index in 'cuts' stores the minimum cuts needed
     // for the substring from that index till the end
-    vector<int> cuts(n, 0);
+    //cuts verson1:
+    /*vector<int> cuts(n, 0);
     for (int startIndex = n - 1; startIndex >= 0; startIndex--) {
     int minCuts = n; // maximum cuts
     for (int endIndex = n - 1; endIndex >= startIndex; endIndex--) {
@@ -425,47 +426,21 @@ int minCut(string s) {
     cuts[startIndex] = minCuts;
     }
     
-    return cuts[0];
-}
-```
+    return cuts[0];*/
 
-```cpp
-func minCut(s string) int {
-	// state: f[i] "前i"个字符组成的子字符串需要最少几次cut(个数-1为索引)
-	// function: f[i] = MIN{f[j]+1}, j < i && [j+1 ~ i]这一段是一个回文串
-	// intialize: f[i] = i - 1 (f[0] = -1)
-	// answer: f[s.length()]
-	if len(s) == 0 || len(s) == 1 {
-		return 0
-	}
-	f := make([]int, len(s)+1)
-	f[0] = -1
-	f[1] = 0
-	for i := 1; i <= len(s); i++ {
-		f[i] = i - 1
-		for j := 0; j < i; j++ {
-			if isPalindrome(s, j, i-1) {
-				f[i] = min(f[i], f[j]+1)
-			}
-		}
-	}
-	return f[len(s)]
-}
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-	return a
-}
-func isPalindrome(s string, i, j int) bool {
-	for i < j {
-		if s[i] != s[j] {
-			return false
-		}
-		i++
-		j--
-	}
-	return true
+    //////version 2
+    vector<int> cuts(n + 1);
+    cuts[0] = -1;
+    cuts[1] = 0;
+    for(int i = 1; i <= n; i++){
+        cuts[i] = i - 1;
+        for(int j = 0; j < i; j++){
+            if(isPalind[j][i-1])
+                cuts[i] = min(cuts[i], cuts[j] + 1);
+        }
+    }
+    return cuts[n];
+}    
 }
 ```
 
@@ -477,39 +452,63 @@ func isPalindrome(s string, i, j int) bool {
 
 > 给定一个无序的整数数组，找到其中最长上升子序列的长度。
 
-```go
-func lengthOfLIS(nums []int) int {
+```cpp
+int lengthOfLIS(vector<int>& nums) {
     // f[i] 表示从0开始到i结尾的最长序列长度
     // f[i] = max(f[j])+1 ,a[j]<a[i]
     // f[0...n-1] = 1
     // max(f[0]...f[n-1])
-    if len(nums) == 0 || len(nums) == 1 {
-        return len(nums)
-    }
-    f := make([]int, len(nums))
-    f[0] = 1
-    for i := 1; i < len(nums); i++ {
-        f[i] = 1
-        for j := 0; j < i; j++ {
-            if nums[j] < nums[i] {
-                f[i] = max(f[i], f[j]+1)
-            }
-        }
-    }
-    result := f[0]
-    for i := 1; i < len(nums); i++ {
-        result = max(result, f[i])
-    }
-    return result
+    if(nums.empty() || nums.size() == 1) return nums.size();
+    int n = nums.size();
 
-}
-func max(a, b int) int {
-    if a > b {
-        return a
+    vector<int> dp(n, 1);
+    int res = 0;
+    for(int i = 1; i < n; i++){
+        for(int j = 0; j < i; j++){
+            if(nums[i] > nums[j]) dp[i] = max(dp[i], dp[j] + 1);
+        }
+        res = max(res, dp[i]);
     }
-    return b
+
+    return res;
 }
 ```
+> 本题还有第二种解法，利用二分查找，降低复杂度
+```cpp
+int lengthOfLIS(vector<int>& nums) {
+    if(nums.empty() || nums.size() == 1) return nums.size();
+    int n = nums.size();
+
+    vector<int> seq;
+    seq.push_back(nums[0]);
+
+    for(int i = 1; i < n; i++){
+        int res = seq.size();
+        if(seq[res-1] < nums[i]){
+            seq.push_back(nums[i]);
+        }
+        else{ // 二分找到大于等于nums[i]的数
+            int k = bisearch(seq, nums[i]);
+            seq[k] = nums[i];
+        }
+    }
+
+    return seq.size();
+}
+
+int bisearch(vector<int>& nums, int num){
+    int left = 0, right = nums.size() - 1;
+    while(left + 1 < right){
+        int mid = left + (right - left) / 2;
+        if(nums[mid] < num) left = mid;
+        else right = mid;
+    }
+
+    if(nums[left] >= num) return left;
+    else return right;
+}
+```
+
 
 ### [word-break](https://leetcode-cn.com/problems/word-break/)
 
