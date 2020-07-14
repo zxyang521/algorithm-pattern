@@ -96,42 +96,37 @@ string minWindow(string s, string t) {
 
 > 给定两个字符串  **s1**  和  **s2**，写一个函数来判断  **s2**  是否包含  **s1 **的排列。
 
-```go
-func checkInclusion(s1 string, s2 string) bool {
-	win := make(map[byte]int)
-	need := make(map[byte]int)
-	for i := 0; i < len(s1); i++ {
-		need[s1[i]]++
-	}
-	left := 0
-	right := 0
-	match := 0
-	for right < len(s2) {
-		c := s2[right]
-		right++
-		if need[c] != 0 {
-			win[c]++
-			if win[c] == need[c] {
-				match++
-			}
+```cpp
+bool checkInclusion(string s1, string s2) {
+	int n1 = s1.length();
+	int n2 = s2.length();
+
+	unordered_map<char, int> mp;
+	for(int i = 0; i < n1; i++) mp[s1[i]]++;
+
+	int winStart = 0;
+	int matched = 0;
+
+	for(int winEnd = 0; winEnd < n2; winEnd++){
+		char w = s2[winEnd];
+		if(mp.find(w) != mp.end()){
+			mp[w]--;
+			if(mp[w] == 0) matched++;  //相同字母都匹配完了
 		}
-		// 当窗口长度大于字符串长度，缩紧窗口
-		for right-left >= len(s1) {
-			// 当窗口长度和字符串匹配，并且里面每个字符数量也匹配时，满足条件
-			if match == len(need) {
-				return true
+
+		if(matched == mp.size()) return true;
+
+		if(winEnd - winStart + 1 >= n1){  //窗口长度大于等于pattern的长度时，收缩窗口
+			char w = s2[winStart];
+			if(mp.find(w) != mp.end()){
+				if(mp[w] == 0) matched--;
+				mp[w]++;
 			}
-			d := s2[left]
-			left++
-			if need[d] != 0 {
-				if win[d] == need[d] {
-					match--
-				}
-				win[d]--
-			}
+			winStart++;
 		}
 	}
-	return false
+
+	return false;
 }
 
 ```
@@ -140,43 +135,40 @@ func checkInclusion(s1 string, s2 string) bool {
 
 > 给定一个字符串  **s **和一个非空字符串  **p**，找到  **s **中所有是  **p **的字母异位词的子串，返回这些子串的起始索引。
 
-```go
-func findAnagrams(s string, p string) []int {
-    win := make(map[byte]int)
-	need := make(map[byte]int)
-	for i := 0; i < len(p); i++ {
-		need[p[i]]++
-	}
-	left := 0
-	right := 0
-	match := 0
-    ans:=make([]int,0)
-	for right < len(s) {
-		c := s[right]
-		right++
-		if need[c] != 0 {
-			win[c]++
-			if win[c] == need[c] {
-				match++
-			}
+```cpp
+//跟上一题一样，本题只不过要遍历全部位置，同时记录下满足条件的起始index
+vector<int> findAnagrams(string s, string p) {
+	int m = s.length();
+	int n = p.length();
+
+	unordered_map<char, int> mp;
+	for(int i = 0; i < n; i++) mp[p[i]]++;
+
+	vector<int> res;
+	int winStart = 0;
+	int matched = 0;
+
+	for(int winEnd = 0; winEnd < m; winEnd++){
+		char w = s[winEnd];
+		if(mp.find(w) != mp.end()){
+			mp[w]--;
+			if(mp[w] == 0) matched++;
 		}
-		// 当窗口长度大于字符串长度，缩紧窗口
-		for right-left >= len(p) {
-			// 当窗口长度和字符串匹配，并且里面每个字符数量也匹配时，满足条件
-			if right-left == len(p)&& match == len(need) {
-				ans=append(ans,left)
+
+		if(matched == mp.size()) res.push_back(winStart);
+
+		if(winEnd - winStart + 1 >= n){
+			char w = s[winStart];
+			if(mp.find(w) != mp.end()){
+				if(mp[w] == 0) matched--;
+				mp[w]++;
 			}
-			d := s[left]
-			left++
-			if need[d] != 0 {
-				if win[d] == need[d] {
-					match--
-				}
-				win[d]--
-			}
+			winStart++;
 		}
-	}
-	return ans
+
+	}   
+
+	return res;
 }
 ```
 
@@ -190,35 +182,24 @@ func findAnagrams(s string, p string) []int {
 > 解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
 
 ```go
-func lengthOfLongestSubstring(s string) int {
+int lengthOfLongestSubstring(string s) {
     // 滑动窗口核心点：1、右指针右移 2、根据题意收缩窗口 3、左指针右移更新窗口 4、根据题意计算结果
-    if len(s)==0{
-        return 0
-    }
-    win:=make(map[byte]int)
-    left:=0
-    right:=0
-    ans:=1
-    for right<len(s){
-        c:=s[right]
-        right++
-        win[c]++
-        // 缩小窗口
-        for win[c]>1{
-            d:=s[left]
-            left++
-            win[d]--
-        }
-        // 计算结果
-        ans=max(right-left,ans)
-    }
-    return ans
-}
-func max(a,b int)int{
-    if a>b{
-        return a
-    }
-    return b
+	int n = s.length();
+	if(n <= 1) return n;
+
+	int winStart = 0;
+	int maxL = INT_MIN;
+	unordered_map<char, int> mp;
+	for(int winEnd = 0; winEnd < n; winEnd++){
+		char w = s[winEnd];
+		if(mp.find(w) != mp.end()){
+			winStart = max(mp[w] + 1, winStart);
+		}
+		mp[w] = winEnd;
+
+		maxL = max(maxL, winEnd - winStart + 1);
+	}
+	return maxL;
 }
 ```
 
