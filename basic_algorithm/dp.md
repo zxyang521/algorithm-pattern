@@ -81,7 +81,7 @@ func min(a, b int) int {
 
 动态规划，自顶向下
 
-```go
+```cpp
 // 测试用例：
 // [
 // [2],
@@ -89,48 +89,35 @@ func min(a, b int) int {
 // [6,5,7],
 // [4,1,8,3]
 // ]
-func minimumTotal(triangle [][]int) int {
-    if len(triangle) == 0 || len(triangle[0]) == 0 {
-        return 0
+int minimumTotal(vector<vector<int>>& triangle) {
+    if(triangle.size() == 0 || triangle[0].size() == 0) return 0;
+
+    int m = triangle.size();
+    vector<vector<int>> dp;    // 1、状态定义：f[i][j] 表示从0,0出发，到达i,j的最短路径
+
+
+    int sum = 0;
+    for(int i = 0; i < m; i++){
+        vector<int> row = triangle[i];
+        sum += row[0];
+        vector<int> rd(row.size(), 0);
+        rd[0] = sum;
+        dp.push_back(rd);  // 初始化
     }
-    // 1、状态定义：f[i][j] 表示从0,0出发，到达i,j的最短路径
-    var l = len(triangle)
-    var f = make([][]int, l)
-    // 2、初始化
-    for i := 0; i < l; i++ {
-        for j := 0; j < len(triangle[i]); j++ {
-            if f[i] == nil {
-                f[i] = make([]int, len(triangle[i]))
-            }
-            f[i][j] = triangle[i][j]
+
+    int res = dp[m-1][0];
+    for(int i = 1; i < m; i++){
+        vector<int> row = triangle[i];
+        for(int j = 1; j < row.size(); j++){
+            if(j < row.size() - 1)
+                dp[i][j] = min(dp[i-1][j], dp[i-1][j-1]) + row[j]; //上一层有左值
+            else
+                dp[i][j] = dp[i-1][j-1] + row[j]; //上一层没有左值
+            if(i == m - 1) res = min(res, dp[i][j]);
         }
     }
-    // 递推求解
-    for i := 1; i < l; i++ {
-        for j := 0; j < len(triangle[i]); j++ {
-            // 这里分为两种情况：
-            // 1、上一层没有左边值
-            // 2、上一层没有右边值
-            if j-1 < 0 {
-                f[i][j] = f[i-1][j] + triangle[i][j]
-            } else if j >= len(f[i-1]) {
-                f[i][j] = f[i-1][j-1] + triangle[i][j]
-            } else {
-                f[i][j] = min(f[i-1][j], f[i-1][j-1]) + triangle[i][j]
-            }
-        }
-    }
-    result := f[l-1][0]
-    for i := 1; i < len(f[l-1]); i++ {
-        result = min(result, f[l-1][i])
-    }
-    return result
-}
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
+
+    return res;
 }
 ```
 
@@ -515,57 +502,42 @@ int bisearch(vector<int>& nums, int num){
 > 给定一个**非空**字符串  *s*  和一个包含**非空**单词列表的字典  *wordDict*，判定  *s*  是否可以被空格拆分为一个或多个在字典中出现的单词。
 
 ```go
-func wordBreak(s string, wordDict []string) bool {
+bool wordBreak(string s, vector<string>& wordDict) {
 	// f[i] 表示前i个字符是否可以被切分
 	// f[i] = f[j] && s[j+1~i] in wordDict
 	// f[0] = true
 	// return f[len]
+    int n = s.length();
+    int m = wordDict.size();
 
-	if len(s) == 0 {
-		return true
-	}
-	f := make([]bool, len(s)+1)
-	f[0] = true
-	max := maxLen(wordDict)
-	for i := 1; i <= len(s); i++ {
-		for j := i - max; j < i && j >= 0; j++ {
-			if f[j] && inDict(s[j:i]) {
-				f[i] = true
-				break
-			}
-		}
-	}
-	return f[len(s)]
-}
+    vector<bool> dp(n + 1, false);
+    dp[0] = true;
 
-var dict = make(map[string]bool)
+    for(int i = 1; i <= n; i++){
+        for(int j = 0; j < m; j++){
+            string word = wordDict[j];
+            int w = word.length();
+            if(i >= w && s.substr(i-w, w) == word && dp[i-w]){
+                dp[i] = true;
+                break;
+            }
+        }
+    }
 
-func maxLen(wordDict []string) int {
-	max := 0
-	for _, v := range wordDict {
-		dict[v] = true
-		if len(v) > max {
-			max = len(v)
-		}
-	}
-	return max
-}
+    return dp[n];
 
-func inDict(s string) bool {
-	_, ok := dict[s]
-	return ok
 }
 
 ```
 
 小结
 
-常见处理方式是给 0 位置占位，这样处理问题时一视同仁，初始化则在原来基础上 length+1，返回结果 f[n]
+常见处理方式是给 0 位置占位，这样处理问题时一视同仁，初始化则在原来基础上```length+1```，返回结果 f[n]
 
 - 状态可以为前 i 个
-- 初始化 length+1
-- 取值 index=i-1
-- 返回值：f[n]或者 f[m][n]
+- 初始化 ```length+1```
+- 取值 ```index=i-1```
+- 返回值：```f[n]```或者 ```f[m][n]```
 
 ## Two Sequences DP（40%）
 
@@ -575,8 +547,8 @@ func inDict(s string) bool {
 > 一个字符串的   子序列   是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
 > 例如，"ace" 是 "abcde" 的子序列，但 "aec" 不是 "abcde" 的子序列。两个字符串的「公共子序列」是这两个字符串所共同拥有的子序列。
 
-```go
-func longestCommonSubsequence(a string, b string) int {
+```cpp
+int longestCommonSubsequence(string text1, string text2) {
     // dp[i][j] a前i个和b前j个字符最长公共子序列
     // dp[m+1][n+1]
     //   ' a d c e
@@ -584,27 +556,20 @@ func longestCommonSubsequence(a string, b string) int {
     // a 0 1 1 1 1
     // c 0 1 1 2 1
     //
-    dp:=make([][]int,len(a)+1)
-    for i:=0;i<=len(a);i++ {
-        dp[i]=make([]int,len(b)+1)
-    }
-    for i:=1;i<=len(a);i++ {
-        for j:=1;j<=len(b);j++ {
-            // 相等取左上元素+1，否则取左或上的较大值
-            if a[i-1]==b[j-1] {
-                dp[i][j]=dp[i-1][j-1]+1
-            } else {
-                dp[i][j]=max(dp[i-1][j],dp[i][j-1])
-            }
+    int s1 = text1.length();
+    int s2 = text2.length();
+
+    vector<vector<int>> dp(s1 + 1, vector<int>(s2 + 1));
+    dp[0][0] = 0;
+
+    for(int i = 1; i <= s1; i++){
+        for(int j = 1; j <= s2; j++){
+            if(text1[i-1] == text2[j-1]) dp[i][j] = 1 + dp[i-1][j-1];
+            else dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
         }
     }
-    return dp[len(a)][len(b)]
-}
-func max(a,b int)int {
-    if a>b{
-        return a
-    }
-    return b
+
+    return dp[s1][s2];
 }
 ```
 
@@ -633,36 +598,25 @@ for i:=0;i<=len(a);i++ {
 思路：和上题很类似，相等则不需要操作，否则取删除、插入、替换最小操作次数的值+1
 
 ```go
-func minDistance(word1 string, word2 string) int {
+int minDistance(string word1, string word2) {
     // dp[i][j] 表示a字符串的前i个字符编辑为b字符串的前j个字符最少需要多少次操作
     // dp[i][j] = OR(dp[i-1][j-1]，a[i]==b[j],min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1)
-    dp:=make([][]int,len(word1)+1)
-    for i:=0;i<len(dp);i++{
-        dp[i]=make([]int,len(word2)+1)
-    }
-    for i:=0;i<len(dp);i++{
-        dp[i][0]=i
-    }
-    for j:=0;j<len(dp[0]);j++{
-        dp[0][j]=j
-    }
-    for i:=1;i<=len(word1);i++{
-        for j:=1;j<=len(word2);j++{
-            // 相等则不需要操作
-            if word1[i-1]==word2[j-1] {
-                dp[i][j]=dp[i-1][j-1]
-            }else{ // 否则取删除、插入、替换最小操作次数的值+1
-                dp[i][j]=min(min(dp[i-1][j],dp[i][j-1]),dp[i-1][j-1])+1
-            }
+    int s1 = word1.length();
+    int s2 = word2.length();
+
+    vector<vector<int>> dp(s1 + 1, vector<int>(s2 + 1));
+    
+    for(int i = 0; i <= s1; i++) dp[i][0] = i;
+    for(int j = 0; j <= s2; j++) dp[0][j] = j;
+
+    for(int i = 1; i <= s1; i++){
+        for(int j = 1; j <= s2; j++){
+            if(word1[i-1] == word2[j-1]) dp[i][j] = dp[i-1][j-1]; //相等不需要操作
+            else dp[i][j] = min(dp[i-1][j], min(dp[i][j-1], dp[i-1][j-1])) + 1; // 插入，删除，替换
         }
     }
-    return dp[len(word1)][len(word2)]
-}
-func min(a,b int)int{
-    if a>b{
-        return b
-    }
-    return a
+
+    return dp[s1][s2];
 }
 ```
 
