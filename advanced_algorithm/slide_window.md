@@ -181,7 +181,7 @@ vector<int> findAnagrams(string s, string p) {
 > 输出: 3
 > 解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
 
-```go
+```cpp
 int lengthOfLongestSubstring(string s) {
     // 滑动窗口核心点：1、右指针右移 2、根据题意收缩窗口 3、左指针右移更新窗口 4、根据题意计算结果
 	int n = s.length();
