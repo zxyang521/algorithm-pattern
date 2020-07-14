@@ -10,20 +10,15 @@
 
 > 编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组  `char[]`  的形式给出。
 
-```go
-func reverseString(s []byte) {
-	res := make([]byte, 0)
-	reverse(s, 0, &res)
-	for i := 0; i < len(s); i++ {
-		s[i] = res[i]
-	}
-}
-func reverse(s []byte, i int, res *[]byte) {
-	if i == len(s) {
-		return
-	}
-	reverse(s, i+1, res)
-	*res = append(*res, s[i])
+```cpp
+void reverseString(vector<char>& s) {
+    if(s.size() <= 1) return;
+
+    int left = 0, right = s.size() - 1;
+    while(left < right){
+        swap(s[left++], s[right--]);
+    }
+    return;
 }
 ```
 
@@ -32,24 +27,25 @@ func reverse(s []byte, i int, res *[]byte) {
 > 给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。
 > **你不能只是单纯的改变节点内部的值**，而是需要实际的进行节点交换。
 
-```go
-func swapPairs(head *ListNode) *ListNode {
-    // 思路：将链表翻转转化为一个子问题，然后通过递归方式依次解决
-    // 先翻转两个，然后将后面的节点继续这样翻转，然后将这些翻转后的节点连接起来
-    return helper(head)
-}
-func helper(head *ListNode)*ListNode{
-    if head==nil||head.Next==nil{
-        return head
+```cpp
+    ListNode* swapPairs(ListNode* head) {
+        //用递归算法写
+        // 思路：将链表翻转转化为一个子问题，然后通过递归方式依次解决
+        // 先翻转两个，然后将后面的节点继续这样翻转，然后将这些翻转后的节点连接起来
+        return swapListNode(head);
     }
-    // 保存下一阶段的头指针
-    nextHead:=head.Next.Next
-    // 翻转当前阶段指针
-    next:=head.Next
-    next.Next=head
-    head.Next=helper(nextHead)
-    return next
-}
+
+    ListNode* swapListNode(ListNode* head){
+        if(head == nullptr || head->next == nullptr) return head;
+
+        // 保存下一阶段的头指针
+        ListNode* nextHead = head->next->next;
+        // 翻转当前阶段指针
+        ListNode* next = head->next;
+        next->next = head;
+        head->next = swapListNode(nextHead);
+        return next;
+    }
 ```
 
 [unique-binary-search-trees-ii](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/)
@@ -96,23 +92,18 @@ func generate(start,end int)[]*TreeNode{
 > F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
 > 给定  N，计算  F(N)。
 
-```go
-func fib(N int) int {
-    return dfs(N)
-}
-var m map[int]int=make(map[int]int)
-func dfs(n int)int{
-    if n < 2{
-        return n
+```cpp
+int fib(int N) {
+    if(N <= 1) return N;
+    int f0 = 0; 
+    int f1 = 1;
+    int res = 0;
+    for(int i = 2; i <= N; i++){
+        res = f0 + f1;
+        f0 = f1;
+        f1 = res;
     }
-    // 读取缓存
-    if m[n]!=0{
-        return m[n]
-    }
-    ans:=dfs(n-2)+dfs(n-1)
-    // 缓存已经计算过的值
-    m[n]=ans
-    return ans
+    return res;
 }
 ```
 
