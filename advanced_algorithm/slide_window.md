@@ -47,63 +47,48 @@ void slidingWindow(string s, string t) {
 [minimum-window-substring](https://leetcode-cn.com/problems/minimum-window-substring/)
 
 > 给你一个字符串 S、一个字符串 T，请在字符串 S 里面找出：包含 T 所有字母的最小子串
+```cpp
+string minWindow(string s, string t) {
+	int m = s.length();
+	int n = t.length();
 
-```go
-func minWindow(s string, t string) string {
-	// 保存滑动窗口字符集
-	win := make(map[byte]int)
-	// 保存需要的字符集
-	need := make(map[byte]int)
-	for i := 0; i < len(t); i++ {
-		need[t[i]]++
-	}
-	// 窗口
-	left := 0
-	right := 0
-	// match匹配次数
-	match := 0
-	start := 0
-	end := 0
-	min := math.MaxInt64
-	var c byte
-	for right < len(s) {
-		c = s[right]
-		right++
-		// 在需要的字符集里面，添加到窗口字符集里面
-		if need[c] != 0 {
-			win[c]++
-			// 如果当前字符的数量匹配需要的字符的数量，则match值+1
-			if win[c] == need[c] {
-				match++
-			}
+	unordered_map<char, int> mp;
+	for(int i = 0; i < n; i++) mp[t[i]]++;  // 保存需要的字符集
+
+	int winStart = 0;
+	int matched = 0;  //t里面已经匹配好的字母次数
+	int start = 0;  
+	int minL = INT_MAX; //最小窗口的长度
+	for(int winEnd = 0; winEnd < m; winEnd++){
+		char w = s[winEnd];
+		if(mp.find(w) != mp.end()){
+			mp[w]--;
+			if(mp[w] == 0) matched++;  // 如果当前字符的数量匹配需要的字符的数量，则match值+1
 		}
 
 		// 当所有字符数量都匹配之后，开始缩紧窗口
-		for match == len(need) {
-			// 获取结果
-			if right-left < min {
-				min = right - left
-				start = left
-				end = right
+		while(matched == mp.size()){
+			if(minL > winEnd - winStart + 1){
+				start = winStart;
+				minL = winEnd - winStart + 1;
 			}
-			c = s[left]
-			left++
-			// 左指针指向不在需要字符集则直接跳过
-			if need[c] != 0 {
-				// 左指针指向字符数量和需要的字符相等时，右移之后match值就不匹配则减一
-				// 因为win里面的字符数可能比较多，如有10个A，但需要的字符数量可能为3
-				// 所以在压死骆驼的最后一根稻草时，match才减一，这时候才跳出循环
-				if win[c] == need[c] {
-					match--
+			// 左指针指向字符数量和需要的字符相等时，右移之后match值就不匹配则减一
+			// 因为win里面的字符数可能比较多，如有10个A，但需要的字符数量可能为3
+			// 所以在压死骆驼的最后一根稻草时，match才减一，这时候才跳出循环
+			// minL = min(minL, winEnd - winStart + 1);
+			char w = s[winStart];
+			if(mp.find(w) != mp.end()){
+				if(mp[w] == 0){
+					matched--;
+					// break;
 				}
-				win[c]--
+				mp[w]++;
 			}
+			winStart++;
 		}
 	}
-	if min == math.MaxInt64 {
-		return ""
-	}
-	return s[start:end]
+
+	return minL == INT_MAX?"":s.substr(start, minL);
 }
 ```
 
