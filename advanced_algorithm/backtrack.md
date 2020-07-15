@@ -26,35 +26,57 @@ func backtrack(选择列表,路径):
 
 > 给定一组不含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
 
+> 第一种是回溯法深度遍历
+> 第二种是队列广度优先遍历
+
+
 遍历过程
 
 ![image.png](https://img.fuiboom.com/img/backtrack.png)
 
-```go
-func subsets(nums []int) [][]int {
-	// 保存最终结果
-	result := make([][]int, 0)
-	// 保存中间结果
-	list := make([]int, 0)
-	backtrack(nums, 0, list, &result)
-	return result
+```cpp
+vector<vector<int>> subsets(vector<int>& nums) {
+	if(nums.empty()) return {};
+	//保存最终结果
+	vector<vector<int>> res;
+	vector<int> list;
+	backtrack(nums, 0, list, res);
+	return res;
 }
-
 // nums 给定的集合
 // pos 下次添加到集合中的元素位置索引
 // list 临时结果集合(每次需要复制保存)
 // result 最终结果
-func backtrack(nums []int, pos int, list []int, result *[][]int) {
+void backtrack(vector<int>& nums, int idx, vector<int> list, vector<vector<int>>& res){
 	// 把临时结果复制出来保存到最终结果
-	ans := make([]int, len(list))
-	copy(ans, list)
-	*result = append(*result, ans)
+	res.push_back(list);
 	// 选择、处理结果、再撤销选择
-	for i := pos; i < len(nums); i++ {
-		list = append(list, nums[i])
-		backtrack(nums, i+1, list, result)
-		list = list[0 : len(list)-1]
+	for(int i = idx; i < nums.size(); i++){
+		list.push_back(nums[i]);
+		backtrack(nums, i + 1, list, res);
+		list.pop_back();  //回溯
 	}
+}
+```
+
+```cpp
+vector<vector<int>> subsets(vector<int>& nums) {
+	int n = nums.size();
+	vector<vector<int>> res;
+	res.push_back({}); //先插入空集
+	
+	//广度遍历，插入数字
+	for(int i = 0; i < n; i++){
+		int num = nums[i];
+		int k = res.size();
+		for(int j = 0; j < k; j++){
+			vector<int> tmp = res[j];
+			tmp.push_back(num);
+			res.push_back(tmp);
+		}
+	}
+
+	return res;
 }
 ```
 
