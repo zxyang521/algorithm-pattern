@@ -52,34 +52,31 @@ void reverseString(vector<char>& s) {
 
 > 给定一个整数 n，生成所有由 1 ... n 为节点所组成的二叉搜索树。
 
-```go
-func generateTrees(n int) []*TreeNode {
-    if n==0{
-        return nil
-    }
-    return generate(1,n)
-
+```cpp
+vector<TreeNode*> generateTrees(int n) {
+    if(n == 0) return vector<TreeNode*> {};
+    return generate(1, n);
 }
-func generate(start,end int)[]*TreeNode{
-    if start>end{
-        return []*TreeNode{nil}
-    }
-    ans:=make([]*TreeNode,0)
-    for i:=start;i<=end;i++{
-        // 递归生成所有左右子树
-        lefts:=generate(start,i-1)
-        rights:=generate(i+1,end)
-        // 拼接左右子树后返回
-        for j:=0;j<len(lefts);j++{
-            for k:=0;k<len(rights);k++{
-                root:=&TreeNode{Val:i}
-                root.Left=lefts[j]
-                root.Right=rights[k]
-                ans=append(ans,root)
+
+vector<TreeNode*> generate(int low, int hi){
+    if(low > hi) return {nullptr};
+
+    vector<TreeNode*> res;
+    for(int i = low; i <= hi; i++){
+        //递归生成左右子树
+        vector<TreeNode*> lefts = generate(low, i - 1);
+        vector<TreeNode*> rights = generate(i + 1, hi);
+        //拼接两边
+        for(int j = 0; j < lefts.size(); j++){
+            for(int k = 0; k < rights.size(); k++){
+                TreeNode* root = new TreeNode(i);
+                root->left = lefts[j];
+                root->right = rights[k];
+                res.push_back(root);
             }
         }
     }
-    return ans
+    return res;
 }
 ```
 
