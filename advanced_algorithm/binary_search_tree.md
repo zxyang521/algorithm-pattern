@@ -23,7 +23,7 @@
  * }
  */
 bool isValidBST(TreeNode* root) {
-    return validate(root, LONG_MIN, LONG_MAX);
+    return validate(root, LONG_MIN, LONG_MAX); //给二叉树补充MIN和MAX
 }
 
 bool validate(TreeNode* root, long mi, long ma){
