@@ -10,8 +10,10 @@
 [validate-binary-search-tree](https://leetcode-cn.com/problems/validate-binary-search-tree/)
 
 > 验证二叉搜索树
+> 一种思路是递归判断左右子树和中间root的值的大小
+> 一种思路是先中序遍历，然后判断遍历数组是否有序
 
-```go
+```cpp
 /**
  * Definition for a binary tree node.
  * type TreeNode struct {
@@ -20,64 +22,35 @@
  *     Right *TreeNode
  * }
  */
-func isValidBST(root *TreeNode) bool {
-    return dfs(root).valid
-}
-type ResultType struct{
-    max int
-    min int
-    valid bool
-}
-func dfs(root *TreeNode)(result ResultType){
-    if root==nil{
-        result.max=-1<<63
-        result.min=1<<63-1
-        result.valid=true
-        return
-    }
-
-    left:=dfs(root.Left)
-    right:=dfs(root.Right)
-
-    // 1、满足左边最大值<root<右边最小值 && 左右两边valid
-    if root.Val>left.max && root.Val<right.min && left.valid && right.valid {
-        result.valid=true
-    }
-    // 2、更新当前节点的最大最小值
-    result.max=Max(Max(left.max,right.max),root.Val)
-    result.min=Min(Min(left.min,right.min),root.Val)
-    return
-}
-func Max(a,b int)int{
-    if a>b{
-        return a
-    }
-    return b
-}
-func Min(a,b int)int{
-    if a>b{
-        return b
-    }
-    return a
+bool isValidBST(TreeNode* root) {
+    return validate(root, LONG_MIN, LONG_MAX);
 }
 
+bool validate(TreeNode* root, long mi, long ma){
+    if(root == nullptr) return true;
+    if(root->val <= mi || root->val >= ma) return false;
+
+    return validate(root->left, mi, root->val) && validate(root->right, root->val, ma);
+}
 ```
 
 [insert-into-a-binary-search-tree](https://leetcode-cn.com/problems/insert-into-a-binary-search-tree/)
 
 > 给定二叉搜索树（BST）的根节点和要插入树中的值，将值插入二叉搜索树。 返回插入后二叉搜索树的根节点。 保证原始二叉搜索树中不存在新值。
 
-```go
-func insertIntoBST(root *TreeNode, val int) *TreeNode {
-    if root==nil{
-        return &TreeNode{Val:val}
+```cpp
+TreeNode* insertIntoBST(TreeNode* root, int val) {
+    if(root == nullptr) {
+        root = new TreeNode(val);
+        return root;
     }
-    if root.Val<val{
-        root.Right=insertIntoBST(root.Right,val)
-    }else{
-        root.Left=insertIntoBST(root.Left,val)
+    if(root->val > val){
+        root->left = insertIntoBST(root->left, val);
     }
-    return root
+    else 
+        root->right = insertIntoBST(root->right, val);
+
+    return root;
 }
 ```
 
@@ -85,7 +58,7 @@ func insertIntoBST(root *TreeNode, val int) *TreeNode {
 
 > 给定一个二叉搜索树的根节点 root 和一个值 key，删除二叉搜索树中的  key  对应的节点，并保证二叉搜索树的性质不变。返回二叉搜索树（有可能被更新）的根节点的引用。
 
-```go
+```cpp
 /**
  * Definition for a binary tree node.
  * type TreeNode struct {
@@ -94,34 +67,35 @@ func insertIntoBST(root *TreeNode, val int) *TreeNode {
  *     Right *TreeNode
  * }
  */
-func deleteNode(root *TreeNode, key int) *TreeNode {
-    // 删除节点分为三种情况：
-    // 1、只有左节点 替换为右
-    // 2、只有右节点 替换为左
-    // 3、有左右子节点 左子节点连接到右边最左节点即可
-    if root ==nil{
-        return root
-    }
-    if root.Val<key{
-        root.Right=deleteNode(root.Right,key)
-    }else if root.Val>key{
-        root.Left=deleteNode(root.Left,key)
-    }else if root.Val==key{
-        if root.Left==nil{
-            return root.Right
-        }else if root.Right==nil{
-            return root.Left
-        }else{
-            cur:=root.Right
-            // 一直向左找到最后一个左节点即可
-            for cur.Left!=nil{
-                cur=cur.Left
-            }
-            cur.Left=root.Left
-            return root.Right
+TreeNode* deleteNode(TreeNode* root, int key) {
+// 删除节点分为三种情况：
+// 1、只有左节点 替换为右
+// 2、只有右节点 替换为左
+// 3、有左右子节点 左子节点连接到右边最左节点即可
+    if(root == nullptr) return root;
+
+    if(root->val < key){
+        root->right = deleteNode(root->right, key);
+    } else if(root->val > key){
+        root->left = deleteNode(root->left, key);
+    } else{
+        //分情况讨论
+        //只有左节点，替换为右节点
+        //只有右节点，替换为左
+        //左右节点都存在，将左节点放到右节点的最左边节点上
+        if(root->right == nullptr) return root->left;
+        else if(root->left == nullptr) return root->right;
+        else{
+            TreeNode* cur = root->right;
+            while(cur->left != nullptr)
+                cur = cur->left;
+
+            cur->left = root->left;
+            return root->right;
         }
     }
-    return root
+
+    return root;
 }
 ```
 
@@ -129,42 +103,32 @@ func deleteNode(root *TreeNode, key int) *TreeNode {
 
 > 给定一个二叉树，判断它是否是高度平衡的二叉树。
 
-```go
-type ResultType struct{
-    height int
-    valid bool
-}
-func isBalanced(root *TreeNode) bool {
-    return dfs(root).valid
-}
-func dfs(root *TreeNode)(result ResultType){
-    if root==nil{
-        result.valid=true
-        result.height=0
-        return
-    }
-    left:=dfs(root.Left)
-    right:=dfs(root.Right)
-    // 满足所有特点：二叉搜索树&&平衡
-    if left.valid&&right.valid&&abs(left.height,right.height)<=1{
-        result.valid=true
-    }
-    result.height=Max(left.height,right.height)+1
-    return
-}
-func abs(a,b int)int{
-    if a>b{
-        return a-b
-    }
-    return b-a
-}
-func Max(a,b int)int{
-    if a>b{
-        return a
-    }
-    return b
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+
+bool isBalanced(TreeNode* root) {
+    if(maxDepth(root) == -1) return false;
+    return true;
 }
 
+int maxDepth(TreeNode* root){
+    if(root == nullptr) return 0;
+    int leftDepth = maxDepth(root->left);
+    int rightDepth = maxDepth(root->right);
+    if(leftDepth == -1 || rightDepth == -1 || leftDepth - rightDepth > 1 || rightDepth - leftDepth > 1)
+    {
+        return -1;
+    }
+    return 1 + max(leftDepth, rightDepth);
+}
 ```
 
 ## 练习
