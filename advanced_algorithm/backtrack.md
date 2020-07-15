@@ -84,40 +84,54 @@ vector<vector<int>> subsets(vector<int>& nums) {
 
 > 给定一个可能包含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。说明：解集不能包含重复的子集。
 
-```go
-import (
-	"sort"
-)
+```cpp
+vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+		if(nums.empty()) return {};
+		sort(nums.begin(), nums.end());  //让重复元素紧挨着
 
-func subsetsWithDup(nums []int) [][]int {
-	// 保存最终结果
-	result := make([][]int, 0)
-	// 保存中间结果
-	list := make([]int, 0)
-	// 先排序
-	sort.Ints(nums)
-	backtrack(nums, 0, list, &result)
-	return result
+		vector<vector<int>> res;
+		res.push_back({});
+
+		int last = res.size();
+		for(int i = 0; i < nums.size(); i++){
+				int n = res.size();
+				int low = 0;
+				if(i > 0 && nums[i] == nums[i-1]) low = last;
+
+				for(int j = low; j < n; j++){
+						vector<int> tmp = res[j];
+						tmp.push_back(nums[i]);
+						res.push_back(tmp);
+				}
+				last = n;
+		}
+
+		return res;
 }
+```
 
+```cpp
+vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+	if(nums.empty()) return {};
+	sort(nums.begin(), nums.end());  //让重复元素紧挨着
+
+	vector<vector<int>> res;
+	vector<int> track;
+	backtrack(nums, 0, track, res);
+	return res;
+}
 // nums 给定的集合
 // pos 下次添加到集合中的元素位置索引
 // list 临时结果集合(每次需要复制保存)
 // result 最终结果
-func backtrack(nums []int, pos int, list []int, result *[][]int) {
-	// 把临时结果复制出来保存到最终结果
-	ans := make([]int, len(list))
-	copy(ans, list)
-	*result = append(*result, ans)
-	// 选择时需要剪枝、处理、撤销选择
-	for i := pos; i < len(nums); i++ {
-        // 排序之后，如果再遇到重复元素，则不选择此元素
-		if i != pos && nums[i] == nums[i-1] {
-			continue
-		}
-		list = append(list, nums[i])
-		backtrack(nums, i+1, list, result)
-		list = list[0 : len(list)-1]
+void backtrack(vector<int>& nums, int idx, vector<int> track, vector<vector<int>>& res){
+	res.push_back(track);
+// 选择时需要剪枝、处理、撤销选择
+	for(int i = idx; i < nums.size(); i++){
+		if(i > idx && nums[i] == nums[i-1]) continue;  //剪枝去重
+		track.push_back(nums[i]);
+		backtrack(nums, i + 1, track, res);
+		track.pop_back();
 	}
 }
 ```
