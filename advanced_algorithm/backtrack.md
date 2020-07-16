@@ -142,89 +142,102 @@ void backtrack(vector<int>& nums, int idx, vector<int> track, vector<vector<int>
 
 思路：需要记录已经选择过的元素，满足条件的结果才进行返回
 
-```go
-func permute(nums []int) [][]int {
-    result := make([][]int, 0)
-    list := make([]int, 0)
-    // 标记这个元素是否已经添加到结果集
-    visited := make([]bool, len(nums))
-    backtrack(nums, visited, list, &result)
-    return result
-}
+```cpp
+vector<vector<int>> permute(vector<int>& nums) {
+	int n = nums.size();
+	vector<vector<int>> res;
+	
+	vector<int> track;
+	vector<bool> visited(n, false);
+	backtrack(nums, track, visited, res);
 
+	return res;
+}
 // nums 输入集合
 // visited 当前递归标记过的元素
 // list 临时结果集(路径)
 // result 最终结果
-func backtrack(nums []int, visited []bool, list []int, result *[][]int) {
-    // 返回条件：临时结果和输入集合长度一致 才是全排列
-    if len(list) == len(nums) {
-        ans := make([]int, len(list))
-        copy(ans, list)
-        *result = append(*result, ans)
-        return
-    }
-    for i := 0; i < len(nums); i++ {
-        // 已经添加过的元素，直接跳过
-        if visited[i] {
-            continue
-        }
-        // 添加元素
-        list = append(list, nums[i])
-        visited[i] = true
-        backtrack(nums, visited, list, result)
-        // 移除元素
-        visited[i] = false
-        list = list[0 : len(list)-1]
-    }
+void backtrack(vector<int>& nums, vector<int> track, vector<bool>& visited, vector<vector<int>>& res){
+	// 返回条件：临时结果和输入集合长度一致 才是全排列
+	if(track.size() == nums.size()){
+		res.push_back(track);
+		return;
+	}
+	for(int i = 0; i < nums.size(); i++){
+		if(visited[i]) continue;  //移除添加过的元素
+		track.push_back(nums[i]);
+		visited[i] = true;
+		backtrack(nums, track, visited, res);
+		visited[i] = false;
+		track.pop_back();
+	}
 }
+```
+
+
+```cpp
+vector<vector<int>> permute(vector<int>& nums) {
+	int n = nums.size();
+	vector<vector<int>> res;
+	if(n <= 1){
+		res.push_back(nums);
+		return res;
+	}
+	queue<vector<int>> qe;
+	qe.push({});
+	for(int i = 0; i < nums.size(); i++){
+		int m = qe.size();
+		for(int k = 0; k < m; k++){
+			vector<int> last = qe.front();
+			qe.pop();
+			for(int j = 0; j <= last.size(); j++){
+				vector<int> tmp = last;
+				tmp.insert(tmp.begin() + j, nums[i]);
+				if(i < nums.size() - 1) qe.push(tmp);  //队列保存上一轮结果
+				else res.push_back(tmp); //存到最终结果里
+			}
+		}
+	}
+
+	return res;
+}
+
 ```
 
 ### [permutations-ii](https://leetcode-cn.com/problems/permutations-ii/)
 
 > 给定一个可包含重复数字的序列，返回所有不重复的全排列。
 
-```go
-import (
-	"sort"
-)
+```cpp
+vector<vector<int>> permuteUnique(vector<int>& nums) {
+	if(nums.size() < 2) return {nums};
+	sort(nums.begin(), nums.end());
+	int n = nums.size();
 
-func permuteUnique(nums []int) [][]int {
-	result := make([][]int, 0)
-	list := make([]int, 0)
-	// 标记这个元素是否已经添加到结果集
-	visited := make([]bool, len(nums))
-	sort.Ints(nums)
-	backtrack(nums, visited, list, &result)
-	return result
+	vector<vector<int>> res;
+	vector<int> track;
+	vector<bool> visited(n, false);
+	backtrack(nums, track, visited, res);
+	return res;
 }
 
-// nums 输入集合
-// visited 当前递归标记过的元素
-// list 临时结果集
-// result 最终结果
-func backtrack(nums []int, visited []bool, list []int, result *[][]int) {
-	// 临时结果和输入集合长度一致 才是全排列
-	if len(list) == len(nums) {
-		subResult := make([]int, len(list))
-		copy(subResult, list)
-		*result = append(*result, subResult)
+void backtrack(vector<int>& nums, vector<int> track, vector<bool>& visited, vector<vector<int>>& res){
+	if(track.size() == nums.size()){
+		res.push_back(track);
+		return;
 	}
-	for i := 0; i < len(nums); i++ {
-		// 已经添加过的元素，直接跳过
-		if visited[i] {
-			continue
-		}
-        // 上一个元素和当前相同，并且没有访问过就跳过
-		if i != 0 && nums[i] == nums[i-1] && !visited[i-1] {
-			continue
-		}
-		list = append(list, nums[i])
-		visited[i] = true
-		backtrack(nums, visited, list, result)
-		visited[i] = false
-		list = list[0 : len(list)-1]
+	for(int i = 0; i < nums.size(); i++){
+		if(visited[i]) continue;
+		// 上一个元素和当前相同，并且没有访问过就跳过
+		if(i > 0 && nums[i] == nums[i-1] && !visited[i-1]) continue;
+		visited[i] = true;
+		track.push_back(nums[i]);
+		backtrack(nums, track, visited, res);
+		visited[i] = false;
+		track.pop_back();
+
 	}
+
 }
 ```
 
