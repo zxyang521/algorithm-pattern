@@ -305,6 +305,8 @@ int largestRectangleArea(vector<int>& heights) {
 
 ## Queue 队列
 
+![queue.jpg](https://s1.ax1x.com/2020/07/19/URER7d.md.jpg)
+
 常用于 BFS 宽度优先搜索
 
 [implement-queue-using-stacks](https://leetcode-cn.com/problems/implement-queue-using-stacks/)
