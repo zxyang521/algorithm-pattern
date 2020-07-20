@@ -501,7 +501,7 @@ int bisearch(vector<int>& nums, int num){
 
 > 给定一个**非空**字符串  *s*  和一个包含**非空**单词列表的字典  *wordDict*，判定  *s*  是否可以被空格拆分为一个或多个在字典中出现的单词。
 
-```go
+```cpp
 bool wordBreak(string s, vector<string>& wordDict) {
 	// f[i] 表示前i个字符是否可以被切分
 	// f[i] = f[j] && s[j+1~i] in wordDict
@@ -527,8 +527,58 @@ bool wordBreak(string s, vector<string>& wordDict) {
     return dp[n];
 
 }
-
 ```
+
+### [perfect-squares](https://leetcode-cn.com/problems/perfect-squares/)
+> 给定正整数 n，找到若干个完全平方数（比如 1, 4, 9, 16, ...）使得它们的和等于 n。你需要让组成和的完全平方数的个数最少。
+
+- 思路：动态规划法
+- 思路2：广度优先搜索法
+  
+```cpp
+int numSquares(int n) {
+    vector<int> dp(n + 1, n);
+    dp[0] = 0;
+    for(int i = 1; i <= n; i++){
+        int N = sqrt(i);
+        for(int j = 1; j <= N; j++)
+            dp[i] = min(dp[i], dp[i - j * j] + 1);
+    }
+
+    return dp[n];
+}
+```
+
+```cpp
+int numSquares(int n) {
+
+    queue<int> qe;
+    vector<bool> visited(n+1, false);
+    qe.push(n);
+    visited[n] = true;
+    int steps = 0;
+
+    while(!qe.empty()){
+        int m = qe.size();
+        for(int i = 0; i < m; i++){
+            int N = qe.front();
+            qe.pop();
+            if(N == 0) return steps;
+            for(int j = 1; j <= sqrt(N); j++){
+                int k = N - j * j;
+                if(!visited[k]){
+                    qe.push(k);
+                    visited[k] = true;
+                }
+            }
+        }
+        steps++;
+    }
+
+    return steps;
+}
+```
+- 注意bfs的时候要剪枝，利用一个数组记录已经计算过的节点
 
 小结
 
@@ -765,6 +815,7 @@ Sequence (40%)
 - [ ] [palindrome-partitioning-ii](https://leetcode-cn.com/problems/palindrome-partitioning-ii/)
 - [ ] [longest-increasing-subsequence](https://leetcode-cn.com/problems/longest-increasing-subsequence/)
 - [ ] [word-break](https://leetcode-cn.com/problems/word-break/)
+- [ ] [perfect-squares](https://leetcode-cn.com/problems/perfect-squares/)
 
 Two Sequences DP (40%)
 
