@@ -14,17 +14,17 @@ boolean DFS(Node cur, Node target, Set<Node> visited) {
     return true if cur is target;
     for (next : each neighbor of cur) {
         if (next is not in visited) {
-            add next to visted;
+            add next to visited;
             return true if DFS(next, target, visited) == true;
         }
     }
     return false;
 }
 ```
-> 以上算法实际调用了系统提供的<font color=green>**隐式栈**</font>，
+> 以上算法实际调用了系统提供的<font color=green>**隐式栈**</font>.
 
 【**模板二**】
-- 要是递归栈太深，会导致溢出，可以利用**显式栈**优化
+- 要是递归栈太深，会导致溢出，可以利用<font color=green>**显式栈**</font>优化
 
 ```java
 /*
