@@ -24,7 +24,7 @@ boolean DFS(Node cur, Node target, Set<Node> visited) {
 > 以上算法实际调用了系统提供的<font color=green>**隐式栈**</font>，
 
 【**模板二**】
-- 要是递归栈太深，会导致溢出，可以利用显式栈优化
+- 要是递归栈太深，会导致溢出，可以利用**显式栈**优化
 
 ```java
 /*
