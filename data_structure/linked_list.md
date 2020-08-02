@@ -569,6 +569,7 @@ vector<int> reversePrint(ListNode* head) {
 - 翻转链表
 - 合并两个链表
 - 找到链表的中间节点
+- 很多情况下，需要跟踪当前节点的前一个节点
 
 ## 练习
 
