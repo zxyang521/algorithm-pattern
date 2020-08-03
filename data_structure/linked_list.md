@@ -570,6 +570,9 @@ vector<int> reversePrint(ListNode* head) {
 - 合并两个链表
 - 找到链表的中间节点
 - 很多情况下，需要跟踪当前节点的前一个节点
+- 与数组插入删除索引的复杂度对比
+
+![复杂度分析](https://s1.ax1x.com/2020/08/02/atRrz6.md.png)
 
 ## 练习
 
