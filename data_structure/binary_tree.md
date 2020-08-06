@@ -688,6 +688,43 @@ TreeNode* insertIntoBST(TreeNode* root, int val) {
 }
 ```
 
+二叉搜索树的删除要复杂点，考虑子节点的数目分为以下三种：
+- 目标节点没有子节点，则直接移除该目标节点
+- 目标节点只有一个子节点，用其子节点直接代替
+- 目标节点有两个子节点，需要用其中序后继节点或者前驱节点来替换，再删除该目标节点。
+
+#### delete-node-in-a-bst
+
+[delete-node-in-a-bst](https://leetcode-cn.com/problems/delete-node-in-a-bst/)
+```cpp
+TreeNode* deleteNode(TreeNode* root, int key) {
+    if(root == nullptr) return root;
+
+    if(root->val < key){
+        root->right = deleteNode(root->right, key);
+    } else if(root->val > key){
+        root->left = deleteNode(root->left, key);
+    } else{
+        //分情况讨论
+        //只有左节点，替换为右节点
+        //只有右节点，替换为左节点
+        //左右节点都存在，将左节点放到右子树的最左边节点上
+        if(root->right == nullptr) return root->left;
+        else if(root->left == nullptr) return root->right;
+        else{
+            TreeNode* cur = root->right;
+            while(cur->left != nullptr)
+                cur = cur->left;
+
+            cur->left = root->left;
+            return root->right;
+        }
+    }
+
+    return root;
+}
+```
+
 ## 总结
 
 - 掌握二叉树递归与非递归遍历
