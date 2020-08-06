@@ -16,5 +16,43 @@
 
 > 根节点是```空字符串```
 
+## 表示
 
+```前缀树```的特别在于字符和子节点之间的对应关系，怎样高效表示这种对应关系是重点
+
+- 数组
+  - 假如只存储```a```到```z```的字符串，可以每个节点声明一个```26```维的数据保存子节点。
+  - 对于特定字符```c```，使用```c-'a'```来作为索引查找数组中相应节点。
+```cpp
+// change this value to adapt to different cases
+#define N 26
+
+struct TrieNode {
+    TrieNode* children[N];
+    
+    // you might need some extra values according to different cases
+};
+
+/** Usage:
+ *  Initialization: TrieNode root = new TrieNode();
+ *  Return a specific child node with char c: (root->children)[c - 'a']
+ */
+```
+
+- Map
+  - 使用```HashMap```存储子节点
+  - 每个节点声明一个HashMap, 键是字符，值则是对应的子节点
+```cpp
+struct TrieNode {
+    unordered_map<char, TrieNode*> children;
+    
+    // you might need some extra values according to different cases
+};
+
+/** Usage:
+ *  Initialization: TrieNode root = new TrieNode();
+ *  Return a specific child node with char c: (root->children)[c]
+ */
+```
+> 通过相应的字符来访问特定的子节点 ```更为容易``` 。但它可能比使用数组 ```稍慢一些``` 。但是，由于我们只存储我们需要的子节点，因此 ```节省了空间``` 。这个方法也更加 ```灵活``` ，因为我们不受到```固定长度和固定范围```的限制。
 
