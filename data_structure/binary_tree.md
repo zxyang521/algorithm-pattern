@@ -708,7 +708,7 @@ TreeNode* deleteNode(TreeNode* root, int key) {
         //分情况讨论
         //只有左节点，替换为右节点
         //只有右节点，替换为左节点
-        //左右节点都存在，将左节点放到右子树的最左边节点上
+        //左右节点都存在，将左子树节点放到右子树的最左边节点的左子树
         if(root->right == nullptr) return root->left;
         else if(root->left == nullptr) return root->right;
         else{
