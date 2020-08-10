@@ -141,3 +141,20 @@ ReturnType aggregateByKey_hashmap(vector<Type>& keys) {
 }
 ```
 
+### [contains-duplicate-ii](https://leetcode-cn.com/problems/contains-duplicate-ii/)
+> 判断是否存在重复元素，且index差绝对值不大于K
+
+采用```hashset```和滑动窗口的思想
+```cpp
+bool containsNearbyDuplicate(vector<int>& nums, int k) {
+    unordered_set<int> hashset;
+
+    for(int i = 0; i < nums.size(); i++){
+        if(hashset.find(nums[i]) != hashset.end()) return true;
+        hashset.insert(nums[i]);
+        if(hashset.size() > k)
+            hashset.erase(nums[i-k]);
+    }
+    return false;
+}
+```
