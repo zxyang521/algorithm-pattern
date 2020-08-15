@@ -182,3 +182,81 @@ string dfs(TreeNode* root, vector<TreeNode*>& result, unordered_map<string, int>
 }
 ```
 
+### [group-shifted-stringss](https://leetcode-cn.com/problems/group-shifted-strings/)
+> 移位字符串分组
+```cpp
+vector<vector<string>> groupStrings(vector<string>& strings) {
+    unordered_map<string, vector<string>> mp;
+    
+    for(int i = 0; i < strings.size(); i++){
+        string word = strings[i];
+        string code = "0";
+        for(int j = 1; j < word.size(); j++){
+            int tmp = word[j] - word[0];
+            if(tmp < 0) tmp += 26;
+            code += tmp + '0';
+        }
+        mp[code].push_back(strings[i]);
+    }
+
+    vector<vector<string>> res;
+    for(auto it = mp.begin(); it != mp.end(); ++it){
+        res.push_back(it->second);
+    }
+    
+    return res;
+}
+```
+
+### [valid-sudoku](https://leetcode-cn.com/problems/valid-sudoku/)
+> 判断有效的数独
+
+思路： 判断9行，9列，9个box中没有重复数字出现
+```cpp
+bool isValidSudoku(vector<vector<char>>& board) {
+    int rows[9][10] = {0};
+    int cols[9][10] = {0};
+    int box[9][10] = {0};
+
+    for(int i = 0; i < 9; i++){
+        for(int j = 0; j < 9; j++){
+            if(board[i][j] == '.') continue;
+            int cur = board[i][j] - '0';
+            //判断行
+            if(rows[i][cur]) return false;
+            if(cols[j][cur]) return false;
+            if(box[3 * (i/3) + j/3][cur]) return false;
+
+            rows[i][cur] = 1;
+            cols[j][cur] = 1;
+            box[3 * (i/3) + j/3][cur] = 1;
+        }
+    }
+
+    return true;
+}
+```
+
+### [find-duplicate-subtrees](https://leetcode-cn.com/problems/find-duplicate-subtrees/)
+> 寻找重复子树
+
+思路：看到重复二字就知道需要使用哈希，还需要对子树进行编码
+
+```cpp
+vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+    //序列化加dfs
+    vector<TreeNode*> res;
+    unordered_map<string, int> mp;
+    dfs(root, res, mp);
+    return res;
+}
+
+string dfs(TreeNode* root, vector<TreeNode*>& result, unordered_map<string, int>& mp){
+    if(root == nullptr) return "";
+    string st = to_string(root->val) + "," + dfs(root->left, result, mp) + "," + dfs(root->right, result, mp);
+    if(mp[st] == 1) result.push_back(root);
+    
+    mp[st]++;
+    return st;
+}
+```
