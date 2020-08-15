@@ -158,3 +158,27 @@ bool containsNearbyDuplicate(vector<int>& nums, int k) {
     return false;
 }
 ```
+
+### [find-duplicate-subtrees](https://leetcode-cn.com/problems/find-duplicate-subtrees/)
+> 找到重复的子树
+
+思路： 找重复的数字或者其他item的时候就要想到哈希表，本题还需要一个步骤就是树的序列化
+```cpp
+vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+    //序列化加dfs
+    vector<TreeNode*> res;
+    unordered_map<string, int> mp;
+    dfs(root, res, mp);
+    return res;
+}
+
+string dfs(TreeNode* root, vector<TreeNode*>& result, unordered_map<string, int>& mp){
+    if(root == nullptr) return "";
+    string st = to_string(root->val) + "," + dfs(root->left, result, mp) + "," + dfs(root->right, result, mp);
+    if(mp[st] == 1) result.push_back(root);
+    
+    mp[st]++;
+    return st;
+}
+```
+
