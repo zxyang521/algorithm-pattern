@@ -111,59 +111,56 @@ public:
 ```
 
 哈希
-```java
-public class Trie {
-    public class TrieNode{
-    public int path;
-    public int end;
-    public HashMap<Character, TrieNode> next;
-
-    public TrieNode(){
-        path = 0;
-        end = 0;
-        next = new HashMap<>();
-    }
-}
-
-    private TrieNode root;
-    public Trie(){
-        root = new TrieNode();
-    }
-
-    public void insert(String word){
-        if(word == null || word.equals(""))  return ;
-        TrieNode node = root;
-        for(int i = 0; i<word.length(); i++){
-            char ch = word.charAt(i);
-            if(!node.next.containsKey(ch)) {
-                node.next.put(ch,new TrieNode());
-            }
-            node = node.next.get(ch);
-            node.path++;
+```cpp
+struct TrieNode {
+    bool isEnd = false;
+    unordered_map<char, TrieNode*> next;
+    ~TrieNode() {  // 析构
+        for (auto& [key, value] : next) {
+            if (value) delete value;
         }
-        node.end++;
-    }
-
-    public boolean search(String word){
-        if(word == null || word.equals("")) return false;
-        TrieNode node = root;
-        for(int i = 0; i<word.length(); i++){
-            char ch = word.charAt(i);
-            if(!node.next.containsKey(ch)) return false;
-            node = node.next.get(ch);
-        }
-        if(node.end == 0) return false;
-        return true;
-    }
-    public boolean startsWith(String word){
-        if(word == null || word.equals("")) return false;
-        TrieNode node = root;
-        for(int i = 0; i<word.length(); i++){
-            char ch = word.charAt(i);
-            if(!node.next.containsKey(ch)) return false;
-            node = node.next.get(ch);
-        }
-        return true;
     }
 };
+
+class Trie {
+private:
+    std::unique_ptr<TrieNode> root;  // 智能指针
+    
+public:
+    Trie(): root(new TrieNode()) {}
+    
+    void insert(string word) {
+        TrieNode *p = root.get();
+        for (const char c : word) {
+            if (!p->next.count(c)) {
+                p->next[c] = new TrieNode();
+            }
+            p = p->next[c];
+        }
+        p->isEnd = true;
+    }
+    
+    bool search(string word) {
+        TrieNode *p = root.get();
+        for (const char c : word) {
+            if (!p->next.count(c)) {
+                return false;
+            }
+            p = p->next[c];
+        }
+        return p->isEnd;
+    }
+    
+    bool startsWith(string prefix) {
+        TrieNode *p = root.get();
+        for (const char c : prefix) {
+            if (!p->next.count(c)) {
+                return false;
+            }
+            p = p->next[c];
+        }
+        return p != nullptr;
+    }
+};
+
 ```
