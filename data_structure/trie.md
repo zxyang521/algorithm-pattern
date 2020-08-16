@@ -59,4 +59,111 @@ struct TrieNode {
 
 > https://leetcode-cn.com/leetbook/read/trie/x7ke5m/
 
+### [implement-trie-prefix-tree](https://leetcode-cn.com/problems/implement-trie-prefix-tree/)
+> 实现前缀树的```insert```,```search```和```startWith```三个操作
 
+思路：两种实现，一种是使用数组，一种是使用哈希表，前者查找更快，但浪费空间，后者节省内存空间，但查找效率上低一级。
+
+```cpp
+class Trie {
+private:
+    bool isEnd;
+    Trie* next[26];
+public:
+    Trie() {
+        isEnd = false;
+        memset(next, 0, sizeof(next));
+    }
+    
+    void insert(string word) {
+        Trie* node = this;
+        for (char c : word) {
+            if (node->next[c-'a'] == NULL) {
+                node->next[c-'a'] = new Trie();
+            }
+            node = node->next[c-'a'];
+        }
+        node->isEnd = true;
+    }
+    
+    bool search(string word) {
+        Trie* node = this;
+        for (char c : word) {
+            node = node->next[c - 'a'];
+            if (node == NULL) {
+                return false;
+            }
+        }
+        return node->isEnd;
+    }
+    
+    bool startsWith(string prefix) {
+        Trie* node = this;
+        for (char c : prefix) {
+            node = node->next[c-'a'];
+            if (node == NULL) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+哈希
+```java
+public class Trie {
+    public class TrieNode{
+    public int path;
+    public int end;
+    public HashMap<Character, TrieNode> next;
+
+    public TrieNode(){
+        path = 0;
+        end = 0;
+        next = new HashMap<>();
+    }
+}
+
+    private TrieNode root;
+    public Trie(){
+        root = new TrieNode();
+    }
+
+    public void insert(String word){
+        if(word == null || word.equals(""))  return ;
+        TrieNode node = root;
+        for(int i = 0; i<word.length(); i++){
+            char ch = word.charAt(i);
+            if(!node.next.containsKey(ch)) {
+                node.next.put(ch,new TrieNode());
+            }
+            node = node.next.get(ch);
+            node.path++;
+        }
+        node.end++;
+    }
+
+    public boolean search(String word){
+        if(word == null || word.equals("")) return false;
+        TrieNode node = root;
+        for(int i = 0; i<word.length(); i++){
+            char ch = word.charAt(i);
+            if(!node.next.containsKey(ch)) return false;
+            node = node.next.get(ch);
+        }
+        if(node.end == 0) return false;
+        return true;
+    }
+    public boolean startsWith(String word){
+        if(word == null || word.equals("")) return false;
+        TrieNode node = root;
+        for(int i = 0; i<word.length(); i++){
+            char ch = word.charAt(i);
+            if(!node.next.containsKey(ch)) return false;
+            node = node.next.get(ch);
+        }
+        return true;
+    }
+};
+```
