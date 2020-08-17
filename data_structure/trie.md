@@ -162,5 +162,153 @@ public:
         return p != nullptr;
     }
 };
+```
 
+### [map-sum-pairs](https://leetcode-cn.com/problems/map-sum-pairs/)
+> 键值映射
+```cpp
+class MapSum {
+    struct TrieNode {
+        bool isEnd = false;
+        int val;
+        unordered_map<char, TrieNode*> next;
+        //析构函数
+        ~TrieNode() {
+            for(auto item: next){
+                if(item.second != nullptr) delete item.second;
+            }
+        }
+    };
+
+private:
+    TrieNode* root; 
+public:
+    /** Initialize your data structure here. */
+    MapSum() {
+        root = new TrieNode();
+    }
+    
+    void insert(string key, int val) {
+        TrieNode* p = root;
+        for(int i = 0; i < key.length(); i++){
+            char c = key[i];
+            if(p->next.find(c) == p->next.end()) p->next[c] = new TrieNode(); 
+            p = p->next[c];
+        }
+        p->isEnd = true;
+        p->val = val;
+        return;
+    }
+    
+    int sum(string prefix) {
+        TrieNode* p = root;
+        int sum = 0;
+        for(int i = 0; i < prefix.length(); i++){
+            char c = prefix[i];
+            if(p->next.find(c) != p->next.end())
+                p = p->next[c];
+            else return 0;
+        }
+        //宽度优先遍历
+        queue<TrieNode*> qe;
+        qe.push(p);
+        while(!qe.empty()){
+            int n = qe.size();
+            for(int i = 0; i < n; i++){
+                TrieNode* node = qe.front();
+                if(node->isEnd) sum += node->val;
+                qe.pop();
+                for(auto item: node->next){
+                    qe.push(item.second);
+                }
+            }
+        }
+
+        return sum;
+    }
+};
+
+/**
+ * Your MapSum object will be instantiated and called as such:
+ * MapSum* obj = new MapSum();
+ * obj->insert(key,val);
+ * int param_2 = obj->sum(prefix);
+ */
+```
+
+### [replace-words](https://leetcode-cn.com/problems/replace-words/)
+> 单词替换
+
+```cpp
+class Solution {
+struct TrieNode{
+    bool isEnd=false;
+    unordered_map<char, TrieNode*> next;
+    ~TrieNode(){
+        for(auto item:next){
+            if(item.second != nullptr) delete item.second;
+        }
+    }
+};
+private:
+  TrieNode* root;
+public:
+    string replaceWords(vector<string>& dict, string sentence) {
+        root = new TrieNode();
+
+        insertDict(dict);
+
+        string res = "";
+        string word = "";
+        int i = 0;
+        int n = sentence.length();
+        while(i < n){
+            if(sentence[i] == ' ' && word.length() > 0){
+                string ser = search(word);
+                if(ser.length()) res += ser;
+                else res += word;
+                res += ' ';
+                word = "";
+            }
+            else word += sentence[i];
+            i++;
+        }
+        
+        string ser = search(word);
+        if(ser.length()) res += ser;
+        else res += word;
+
+        return res;
+    }
+
+    void insertDict(vector<string>& dict){
+        for(int i = 0; i < dict.size(); i++) insert(dict[i]);
+        return;
+    }
+    void insert(string& word){
+        TrieNode* p = root;
+        for(int i = 0; i < word.length(); i++){
+            char c = word[i];
+            if(p->next.find(c) == p->next.end()) p->next[c] = new TrieNode();
+            p = p->next[c];
+        }
+        p->isEnd = true;
+    }
+
+    string search(string& word){
+        TrieNode* p = root;
+        string res = "";
+        for(int i = 0; i < word.length(); i++){
+            char c = word[i];
+            if(p->isEnd) return res;
+            if(p->next.find(c) != p->next.end()){
+                res += c;
+                p = p->next[c];
+            }
+            else  return "";
+        }
+        return "";
+    }
+
+};
 ```
