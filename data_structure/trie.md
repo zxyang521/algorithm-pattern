@@ -29,7 +29,7 @@
 
 struct TrieNode {
     bool isEnd; //该节点是否是一个串的结束
-    TrieNode* children[N];
+    TrieNode* next[N];
     
     // you might need some extra values according to different cases
 };
@@ -45,8 +45,15 @@ struct TrieNode {
   - 每个节点声明一个HashMap, 键是字符，值则是对应的子节点
 ```cpp
 struct TrieNode {
-    unordered_map<char, TrieNode*> children;
-    
+    bool isEnd=false; //该节点是否是一个串的结束
+    unordered_map<char, TrieNode*> next;
+
+    //析构函数
+    ~TrieNode(){
+        for(auto item: next){
+            if(item.second != nullptr) delete item.second;
+        }
+    }
     // you might need some extra values according to different cases
 };
 
