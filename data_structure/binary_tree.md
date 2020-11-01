@@ -61,7 +61,7 @@ vector<int> preorderTraversal(TreeNode* root){
     while(!st.empty()){
         TreeNode* node = st.top();
         st.pop();
-        res.push_nack(node->val);
+        res.push_back(node->val);
         //注意先入右节点进栈
         if(!node->right) st.push(node->right);
         if(!node->left) st.push(node->left);
