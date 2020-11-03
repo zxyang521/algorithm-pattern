@@ -29,10 +29,11 @@ void selectionSort(vector<int>& a){
     for(int i = 0; i < n; i++){
         int min = i;
         for(int j = i + 1; j < n; j++){
-            if(a[j] < min)
+            if(a[j] < a[min])
                 min = j;
         }
-        swap(a, i , j);
+        if(min != i)
+        	swap(a, i, min);
     }
 
 }
