@@ -45,7 +45,7 @@ void selectionSort(vector<int>& a){
 //插入排序
 void insertionSort(vector<int>& a){
     int n = a.size();
-    for(int i = 1; i < n; i ++){
+    for(int i = 1; i < n; i++){
         for(int j = i; j > 0; j--){
             if(a[j] < a[j - 1]){
                 swap(a, j, j - 1);
@@ -65,7 +65,7 @@ void shellSort(vector<int>& a){
     int H = 1;
     while(H < n) H = 3 * H + 1; //壳的序列
 
-    for(int h = H; h >= 1; h = (H - 1) / 3){
+    for(int h = H; h >= 1; h = (h - 1) / 3){
         // 插入排序
         for(int i = 1; i < n; i++){
             for(int j = i; j > h; j-=h){
@@ -85,7 +85,7 @@ void shellSort(vector<int>& a){
 //快速排序，快排
 void quickSort(vector<int>& a){
 
-    random_shuffle(a);
+    random_shuffle(a); //保证快排复杂度下限
     int n = a.size();
     quick_sort(a, 0, n - 1);
 }
@@ -100,13 +100,11 @@ void quick_sort(vector<int>& a, int low, int high){
 static int partition(vector<int>& a, int low, int high){
     int i = low, j = high + 1;
     while(i < j){
-
         while(a[++i] < a[low])
             if(i == high) break;
-        
+      
         while(a[low] < a[--j])
             if(j == low) break;
-        
         swap(a, i, j);
     }
     swap(a, low, j);
@@ -115,7 +113,6 @@ static int partition(vector<int>& a, int low, int high){
 
 // 选择k
 static int select(vector<int>& a, int k){
-
     int low = 0, high = a.size() - 1;
     while(low < high){
         int pivot = partition(a, low, high);
@@ -123,9 +120,7 @@ static int select(vector<int>& a, int k){
         else if(pivot > k) high = pivot - 1;
         else return a[k];
     }
-
     return a[k];
-
 }
 
 //重复键值，3-way partition
@@ -191,7 +186,6 @@ void buMergeSort(vector<int>& a){
             merge(a, aux, low, low + i - 1,  min(n - 1, low + 2 * i - 1));
         }
     }
-
 }
 ```
 
