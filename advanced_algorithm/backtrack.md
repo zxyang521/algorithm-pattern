@@ -241,6 +241,38 @@ void backtrack(vector<int>& nums, vector<int> track, vector<bool>& visited, vect
 }
 ```
 
+### [ju-zhen-zhong-de-lu-jing-lcof](https://leetcode-cn.com/problems/ju-zhen-zhong-de-lu-jing-lcof/)
+
+> 请设计一个函数，用来判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。
+
+```cpp
+bool exist(vector<vector<char>>& board, string word) {
+  for(int i = 0; i < board.size(); i++){
+    for(int j = 0; j < board[0].size(); j++){
+      if(bfs(board, i, j, word, 0)) return true;
+    }
+  }
+
+  return false;
+}
+
+bool bfs(vector<vector<char>>& board, int i, int j, string word, int idx){
+  if(idx >= word.length() || i < 0 || i >= board.size() || j < 0 || j >= board[0].size() || 
+     board[i][j] != word[idx])
+    return false;
+  board[i][j] = '0';
+  if(idx == word.length() - 1) return true;
+  bool flag = bfs(board, i-1, j, word, idx+1) ||
+    bfs(board, i+1, j, word, idx+1) ||
+    bfs(board, i, j-1, word, idx+1) ||
+    bfs(board, i, j+1, word, idx+1);
+  board[i][j] = word[idx]; //别忘了回溯
+  return flag;
+}
+```
+
+
+
 ## 练习
 
 - [ ] [subsets](https://leetcode-cn.com/problems/subsets/)
